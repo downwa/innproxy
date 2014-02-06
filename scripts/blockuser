@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Block specified UID from access
+
+[ "$1" = "" ] && echo "Missing uid" 1>&2 && exit 1
+uid=$1
+
+rmtable() {
+	table=$1
+	line=$2
+	echo iptables -D $table $line
+	iptables -D $table $line
+}
+
+grep -H "^user: '$uid'" /var/lib/zentyal-captiveportal/sessions/* 2>/dev/null | cut -d ':' -f 1 | while read session; do
+	ip=$(grep "^ip" "$session" | awk '{print $2}')
+	echo "IP: $ip"
+	line=$(iptables -vnL fcaptive --line-numbers | grep "$ip.*user:$uid" | awk '{print $1}')
+	[ "$line" != "" ] && rmtable fcaptive $line
+	line=$(iptables -vnL icaptive --line-numbers | grep "$ip.*user:$uid" | awk '{print $1}')
+	[ "$line" != "" ] && rmtable icaptive $line
+done
+ip=$(grep "^192.168.2..* - $uid" /var/log/zentyal-captiveportal/access.log | tail -n 1 | awk '{print $1}')
+if [ "$ip" != "" ]; then
+	echo ip=$ip
+        line=$(iptables -vnL fcaptive --line-numbers | grep "$ip.*user:$uid" | awk '{print $1}')
+        [ "$line" != "" ] && rmtable fcaptive $line
+        line=$(iptables -vnL icaptive --line-numbers | grep "$ip.*user:$uid" | awk '{print $1}')
+        [ "$line" != "" ] && rmtable icaptive $line
+fi

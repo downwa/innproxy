@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use EBox;
+use EBox::Users::User;
+use Text::Password::Pronounceable;
+
+my $username = $ARGV[0];
+printf "DEL uid=$username\n";
+
+my $datestamp = POSIX::strftime("%s", localtime);
+
+EBox::init();
+
+my $parent = EBox::Users::User->defaultContainer();
+
+eval {
+	my $dn="uid=$username,ou=Users,dc=bristolinn,dc=com";
+	my $user = new EBox::Users::User(dn => $dn);
+	printf("DEL: %s %s\n",$user->name,$user->description);
+	$user->deleteObject();
+};
+if ($@) { printf("DEL: %s",$@); }
+
+1;

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+/home/administrator/scripts/listusers | grep "^.*,.*,0,.*,.*" /tmp/usages.csv | sort -n -k 1.6 | /home/administrator/scripts/tabulate
+exit
+
+# Too slow here
+/home/administrator/scripts/listusers | sort -n -k 1.6 >/tmp/curusers.txt.$$
+mv /tmp/curusers.txt.$$ /tmp/curusers.txt
+
+# Make sure usage script is started
+while [ ! -f /tmp/usages.csv ]; do
+	sudo start choggiung.proxydaemon
+	for((x=1;x<30;x++)); do [ -f /tmp/usages.csv ] && break; sleep 1; done
+done
+
+echo '<script>'
+echo '  var msg="Are you sure?";'
+echo '</script>'
+echo '<table style="font-size:8pt" border=1>'
+echo '<tr><th valign=bottom class="col1">Delete</th><th valign=bottom class="col2">Activate Room#</th><th valign=bottom class="col3">Password</th></tr>'
+# Lines e.g. 103,AYLNLT,1382484953,259200,   2.38
+s=$(date +%s)
+cat "/tmp/usages.csv" | sort -n -k 1.6 | while IFS=, read uid password datestamp seconds usage; do
+	grep -q "^$uid " /tmp/curusers.txt || continue
+	[ "$datestamp" != "0" ] && continue # Don't list if datestamp is zero (not used yet)
+	echo "$uid,$password"
+done | sed -e 's/_/ /g' | awk -F ',' '{print "<tr><td class=col1><a href=\"listinactive.php?deluid="$1"\" onclick=\"return confirm(msg)\">X</a></td><td class=col2><a href=\"listinactive.php?uid="$1"\">"$1"</a></td><td class=col3>"$2"</td></tr>"}'
+echo "</table>"

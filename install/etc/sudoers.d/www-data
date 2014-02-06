@@ -1,0 +1,5 @@
+
+# Zentyal sudo configuration
+
+# allow there users to run all commands without passwd
+www-data  ALL = NOPASSWD:ALL

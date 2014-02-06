@@ -1,0 +1,9 @@
+#!/bin/sh
+
+clear
+(
+
+
+head -n 2 /tmp/topusers.csv; tail -n +3 /tmp/topusers.csv | sort -nr | 
+	gawk -F ',' '{printf "%s, %s, %s, %-15s, %s\n",$1,strftime("%b %d %H:%M",$2),strftime("%b %d %H:%M",$3),$4,$5}'
+) | more

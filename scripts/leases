@@ -1,0 +1,18 @@
+#!/bin/sh
+# List DHCP leases in tabular format
+
+# OF INTEREST:
+# lease 192.168.2.140 {
+#   starts 4 2014/01/23 20:42:55;
+#   ends 4 2014/01/23 22:42:55;
+#   hardware ethernet 68:96:7b:09:c9:d7;
+#   client-hostname "iPhone";
+
+F="/var/lib/dhcp/dhcpd.leases"
+
+act=$(grep -B7 -A6 "^  binding state active;" "$F")
+macs=$(echo "$act" | grep "^  hardware ethernet " | sort | uniq)
+echo "$macs" | while read mac; do
+	echo "$mac"
+	echo "$act" | grep -B6 -A6 "^  $mac"  "$F" #| grep "^lease " #| tail -n 1
+done

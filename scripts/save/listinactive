@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cat "/tmp/usages.csv" | sort -n -k 1.6 | while IFS=, read uid password datestamp seconds usage; do
+        grep -q "^$uid " /tmp/curusers.txt || continue
+        [ "$datestamp" != "0" ] && continue # Don't list if datestamp is zero (not used yet)
+        echo "$uid,$password"
+done | sed -e 's/_/ /g'
