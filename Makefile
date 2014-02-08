@@ -1,3 +1,7 @@
+# NOTE: Forced removal of unwanted objects (even in history) using:
+# http://git-scm.com/book/ca/Git-Internals-Maintenance-and-Data-Recovery
+# then git push -f origin master
+
 default:
 	echo "Choose checkin, checkout, bin, install, or gitconfig"
 
