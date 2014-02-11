@@ -8,11 +8,15 @@ ln -s /usr/share/zentyal/www /var/
 
 # Install patches
 cp -av /home/administrator/innproxy/install/* /
+if [ ! -f /etc/apache2/passwd/passwords ]; then
+
 for user in wdowns frontdesk justin; do
 	echo "Setting web password for $user..."
 	[ "$user" = "wdowns" ] && parm="-c"
 	htpasswd $parm /etc/apache2/passwd/passwords "$user"
 done
+
+fi
 
 # Install PHP and additional utilities (binutils for strings)
 apt-get install php5-fpm libapache2-mod-php5 mlocate binutils realpath bc
