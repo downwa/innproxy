@@ -1,90 +1,67 @@
 <?php
 
-$server_name = "reserve";
-$domain_name = "bristolinn.com";
-$site_name = "Bristol Inn Wireless Network";
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Path to the arp command on the local server
-$arp = "/usr/sbin/arp";
-
-// The following file is used to keep track of users
-$users = "/var/lib/iglooportal/users.txt";
-
-// Check if we've been redirected by firewall to here.
-// If so redirect to registration address
-if ($_SERVER['SERVER_NAME']!="$server_name.$domain_name") {
-  header("location:http://$server_name.$domain_name/index.php?add="
-    .urlencode($_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']));
-  exit;
+$isSecure = false;
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) {
+    $isSecure = true;
 }
-
-// Attempt to get the client's mac address
-$mac = shell_exec("$arp -a ".$_SERVER['REMOTE_ADDR']);
-preg_match('/..:..:..:..:..:../',$mac , $matches);
-@$mac = $matches[0];
-if (!isset($mac)) { exit; }
-
-if (!isset($_POST['email']) || !isset($_POST['name'])) {
-  // Name or email address not entered therefore display form
-  ?>
-  <h1>Welcome to <?php echo $site_name;?></h1>
-  To access the Internet you must first enter your details:<br><br>
-  <form method='POST'>
-  <table border=0 cellpadding=5 cellspacing=0>
-  <tr><td>Your full name:</td><td><input type='text' name='name'></td></tr>
-  <tr><td>Your email address:</td><td><input type='text' name='email'></td></tr>
-  <tr><td></td><td><input type='submit' name='submit' value='Submit'></td></tr>
-  </table>
-  </form>
-  <?php
-} else {
-    enable_address();
+elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
+    $isSecure = true;
 }
+$REQUEST_PROTOCOL = $isSecure ? 'https' : 'http';
+//if($isSecure) { header("Location: https://".$_SERVER['SERVER_ADDR']."/login.php".$path); exit; }
 
-// This function enables the PC on the system by calling iptables, and also saving the
-// details in the users file for next time the firewall is reset
+echo "It works: path=$path";
+echo "<pre>";
+print_r($_SERVER);
+echo "</pre>";
 
-function enable_address() {
 
-    global $name;
-    global $email;
-    global $mac;
-    global $users;
 
-    file_put_contents($users,$_POST['name']."\t".$_POST['email']."\t"
-        .$_SERVER['REMOTE_ADDR']."\t$mac\t".date("d.m.Y")."\n",FILE_APPEND + LOCK_EX);
-    
-    // Add PC to the firewall
-    exec("sudo iptables -I internet 1 -t mangle -m mac --mac-source $mac -j RETURN");
-    // The following line removes connection tracking for the PC
-    // This clears any previous (incorrect) route info for the redirection
-    exec("sudo rmtrack ".$_SERVER['REMOTE_ADDR']);
 
-    sleep(1);
-    header("location:http://".$_GET['add']);
-    exit;
-}
 
-// Function to print page header
-function print_header() {
 
-  ?>
-  <html>
-  <head><title>Welcome to <?php echo $site_name;?></title>
-  <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-  <LINK rel="stylesheet" type="text/css" href="./style.css">
-  </head>
 
-  <body bgcolor=#FFFFFF text=000000>
-  <?php
-}
+    // Get the private context
+    session_name('Private');
+    session_start();
+    $private_id = session_id();
+    $b = $_SESSION['pr_key'];
+    session_write_close();
+   
+    // Get the global context
+    session_name('Global');
+    session_id('TEST');
+    session_start();
+   
+    $a = $_SESSION['key'];
+    session_write_close();
 
-// Function to print page footer
-function print_footer() {
-  echo "</body>";
-  echo "</html>";
+    // Work & modify the global & private context (be ware of changing the global context!)
+ ?>
+<html>
+    <body>
+        <h1>Test 2: Global Count is: <?=++$a?></h1>
+        <h1>Test 2: Your Count is: <?=++$b?></h1>
+        <h1>Private ID is <?=$private_id?></h1>
+        <h1>Gloabl ID is <?=session_id()?></h1>
+        <pre>
+        <?php print_r($_SESSION); ?>
+        </pre>
+    </body>
+ </html>
+ <?php
+    // Store it back
+    session_name('Private');
+    session_id($private_id);
+    session_start();
+    $_SESSION['pr_key'] = $b;
+    session_write_close();
 
-}
-
+    session_name('Global');
+    session_id('TEST');
+    session_start();
+    $_SESSION['key']=$a;
+    session_write_close();
 ?>
-

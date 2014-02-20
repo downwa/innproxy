@@ -1,9 +1,0 @@
-## CATCH-ALL REDIRECT##
-#RewriteCond %{HTTP_HOST} ^(oldsite¦www.oldsite) [NC]
-#RewriteRule ^(.*)$ http://denver.newsite.com/$1 [R=301,L] 
-#Redirect 301 / http://192.168.200.11:1235/
-RewriteEngine On
-RewriteBase /
-RewriteRule ^(.+)$ /login.php/$1 
-#[NC,L,QSA]
-RewriteRule ^.*$ login.php [NC,L]

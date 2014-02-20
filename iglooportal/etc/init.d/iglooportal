@@ -32,8 +32,8 @@ start() {
 	################################
 
 	# Redirects web requests from Unauthorised users to logon Web Page
-	$IPTABLES -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 80  -j DNAT --to-destination $PORTIP
-	$IPTABLES -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 443 -j DNAT --to-destination $PORTIP:8443
+	$IPTABLES -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 80  -j DNAT --to-destination $PORTIP:8080
+	$IPTABLES -t nat -A PREROUTING -m mark --mark 99 -p tcp --dport 443 -j DNAT --to-destination $PORTIP:447
 
 	# Now that we've got to the forward filter, drop all packets
 	# marked 99 - these are unknown users. We can't drop them earlier
@@ -51,8 +51,8 @@ start() {
 	$IPTABLES -t mangle -A internet -p tcp -m tcp --dport 443 -j MARK --set-mark 99
 	$IPTABLES -t mangle -A internet -m mark ! --mark 99 -j MARK --set-mark 100
 	$IPTABLES -t mangle -I PREROUTING -i eth1 -j internet
-	$IPTABLES -t nat -I PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $PORTIP
-	$IPTABLES -t nat -I PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $PORTIP:8443
+	$IPTABLES -t nat -I PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination $PORTIP:8080
+	$IPTABLES -t nat -I PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp --dport 443 -j DNAT --to-destination $PORTIP:447
 	$IPTABLES -I FORWARD -i eth1 -m mark --mark 100 -j REJECT
 
 	# Enable Internet connection sharing

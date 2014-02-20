@@ -10,7 +10,7 @@ elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED
     $isSecure = true;
 }
 $REQUEST_PROTOCOL = $isSecure ? 'https' : 'http';
-if($isSecure) { header("Location: https://".$_SERVER['SERVER_ADDR']."/login.php".$path); exit; }
+//if($isSecure) { header("Location: https://".$_SERVER['SERVER_ADDR']."/login.php".$path); exit; }
 
 echo "<pre>";
 print_r($_SERVER);
