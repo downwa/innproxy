@@ -51,12 +51,10 @@ Include /etc/apache2/mods-available/rewrite.load
 Include /etc/apache2/mods-available/ssl.conf
 Include /etc/apache2/mods-available/ssl.load
 Include /etc/apache2/mods-available/status.load
-Include /etc/apache2/mods-available/php5.conf
 Include /etc/apache2/mods-available/php5.load
 
-
-Listen 80
-Listen 443
+Listen 8080
+Listen 447
 User www-data
 Group www-data
 
@@ -83,15 +81,15 @@ CustomLog /var/log/iglooportal/access.log combined-cookie
 </IfModule>
 
 
-<VirtualHost *:80>
+<VirtualHost *:8080>
     ServerAdmin webmaster@localhost
     RewriteEngine On
 #    RewriteRule ^(.*)$ https://%{SERVER_ADDR}:4443/?redirect=%{HTTP_HOST}$1?%{QUERY_STRING} [L]
-    RewriteRule ^(.*)$ https://reserve.bristolinn.com/?redirect=%{HTTP_HOST}$1?%{QUERY_STRING} [L]
+    RewriteRule ^(.*)$ https://reserve.bristolinn.com:447/?redirect=%{HTTP_HOST}$1?%{QUERY_STRING} [L]
 </VirtualHost>
 
 
-<VirtualHost *:443>
+<VirtualHost *:447>
     ServerAdmin webmaster@localhost
 
     DocumentRoot /usr/share/iglooportal/www/
@@ -112,13 +110,16 @@ CustomLog /var/log/iglooportal/access.log combined-cookie
         AllowOverride None
         Order allow,deny
         Allow from all
-#	## CATCH-ALL REDIRECT##
-#	RewriteEngine On
-#	RewriteBase /
-#	RewriteCond %{REQUEST_FILENAME} !-f
-#	RewriteCond %{REQUEST_FILENAME} !-d
-#	RewriteCond %{REQUEST_URI}  !^/$
-#	RewriteRule ^(.+)$ /index.php/$1/
+	## CATCH-ALL REDIRECT##
+	#RewriteCond %{HTTP_HOST} ^(oldsite¦www.oldsite) [NC]
+	#RewriteRule ^(.*)$ http://denver.newsite.com/$1 [R=301,L] 
+	#Redirect 301 / http://192.168.200.11:1235/
+	RewriteEngine On
+	RewriteBase /
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI}  !^/$
+	RewriteRule ^(.+)$ /index.php/$1/
 	#[NC,L,QSA]
 	#RewriteRule ^.*$ index.php [NC,L]
 
@@ -132,24 +133,10 @@ CustomLog /var/log/iglooportal/access.log combined-cookie
 
     RewriteEngine On
 
-#    RewriteCond %{HTTP_HOST}::reserve.bristolinn.com:%{SERVER_PORT} !^(.+)::\1$
-    RewriteCond %{HTTP_HOST}  !^reserve\.bristolinn\.com [NC]
-    RewriteCond %{HTTP_HOST}   !^$
-    RewriteCond %{SERVER_PORT} !^80$
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-#    RewriteRule ^/(.*)         http://www.example.com:%{SERVER_PORT}/$1 [L,R]
-    RewriteRule ^(.*)$ https://reserve.bristolinn.com:%{SERVER_PORT}/?redirect=%{HTTP_HOST}$1?%{QUERY_STRING} [L]
-
-	## CATCH-ALL REDIRECT##
-#	RewriteEngine On
-#	RewriteCond %{REQUEST_FILENAME} !-f
-#	RewriteCond %{REQUEST_FILENAME} !-d
-#	RewriteCond %{REQUEST_URI}  !^/$
-#	RewriteRule ^(.+)$ /index.php/$1/
-	#[NC,L,QSA]
-	#RewriteRule ^.*$ index.php [NC,L]
-
+#    RewriteCond %{HTTP_HOST}::%{SERVER_ADDR}:%{SERVER_PORT} !^(.+)::\1$
+#    RewriteRule ^(.*)$ https://%{SERVER_ADDR}:4443/?redirect=%{HTTP_HOST}$1?%{QUERY_STRING} [L]
+    RewriteCond %{HTTP_HOST}::reserve.bristolinn.com:%{SERVER_PORT} !^(.+)::\1$
+    RewriteRule ^(.*)$ https://reserve.bristolinn.com:447/?redirect=%{HTTP_HOST}$1?%{QUERY_STRING} [L]
 
     # Map /zentyal/ebox.cgi to the right Perl CGI and redirect
 #    RewriteRule ^/ebox.cgi$ /

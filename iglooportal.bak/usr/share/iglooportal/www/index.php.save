@@ -8,11 +8,7 @@ $site_name = "Bristol Inn Wireless Network";
 $arp = "/usr/sbin/arp";
 
 // The following file is used to keep track of users
-$users = "/var/lib/iglooportal/users/users/users.txt";
-
-echo "IP:".$_SERVER['REMOTE_ADDR'];
-
-exit;
+$users = "/var/lib/iglooportal/users.txt";
 
 // Check if we've been redirected by firewall to here.
 // If so redirect to registration address
