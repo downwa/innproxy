@@ -1,5 +1,9 @@
 <?php
 
+header("Connection: close");
+
+$CLIENTIPS="192.168.42.";
+
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 $isSecure = false;
@@ -12,7 +16,11 @@ elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED
 $REQUEST_PROTOCOL = $isSecure ? 'https' : 'http';
 //if($isSecure) { header("Location: https://".$_SERVER['SERVER_ADDR']."/login.php".$path); exit; }
 
-echo "It works: path=$path";
+echo "It works: path=".$_GET['redirect'];
+
+// Calculate IP address of client
+$ipaddr=$CLIENTIPS.(($_SERVER['REMOTE_PORT']-1024)%256);
+echo "ip=".$ipaddr;
 echo "<pre>";
 print_r($_SERVER);
 echo "</pre>";
