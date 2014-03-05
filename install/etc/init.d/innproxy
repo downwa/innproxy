@@ -1,0 +1,42 @@
+#!/bin/sh
+
+start() {
+        /usr/sbin/apache2 -f /var/lib/iglooportal/apache2.conf -DNO_DETACH &
+        sleep 1
+	status
+}
+
+stop() {
+	pids=$(ps waxf | grep iglooportal | grep -v grep | awk '{print $1}')
+	echo "PIDS: $pids"
+	[ "$pids" != "" ] && kill -9 $pids
+}
+
+status() {
+        netstat -nlp | egrep ":80|:443|:447"
+}
+
+case $1 in
+	start)
+		echo "Starting innproxy..."
+		start
+	;;
+	status)
+		echo "Status of innproxy..."
+		status
+	;;
+	stop)
+		echo "Stopping innproxy..."
+		stop
+	;;
+	restart)
+		echo "Restarting innproxy..."
+		stop
+		start
+	;;
+	*)
+		echo "Parameters: start, stop, restart, or status"
+		exit 1
+	;;
+esac
+

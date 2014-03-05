@@ -23,8 +23,8 @@ bin:
 install: bin
 	./doinstall.sh
 
-run:
-	./runwww.sh
+start:
+	/etc/init.d/innproxy start
 
 stop:
-	./stopwww.sh
+	/etc/init.d/innproxy stop
