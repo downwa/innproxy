@@ -26,6 +26,7 @@ start() {
 	$IPTABLES -t nat    -A PREROUTING -p udp --dport    53 -j ACCEPT
 	$IPTABLES -t nat    -A PREROUTING -p tcp --dport    80 -j DNAT --to-destination $RIP
 	$IPTABLES -t nat    -A PREROUTING -p tcp --dport   443 -j DNAT --to-destination $RIP
+	$IPTABLES -t nat    -A PREROUTING -p tcp --dport   447 -j DNAT --to-destination $RIP:443
 	$IPTABLES -t nat    -A PREROUTING -p tcp --dport 24800 -j ACCEPT    # FOR DEBUGGING ONLY
 	$IPTABLES -t nat    -A PREROUTING -j DNAT --to-destination $RIP
 
@@ -39,6 +40,7 @@ start() {
 	$IPTABLES -t nat    -A serv -p udp --dport    53 -j ACCEPT
 	$IPTABLES -t nat    -A serv -p tcp --dport    80 -j ACCEPT
 	$IPTABLES -t nat    -A serv -p tcp --dport   443 -j ACCEPT
+	$IPTABLES -t nat    -A serv -p tcp --dport   447 -j ACCEPT
 	$IPTABLES -t nat    -A serv -p tcp --dport 24800 -j ACCEPT      # FOR DEBUGGING ONLY
 	$IPTABLES -t nat    -A serv -p icmp -j ACCEPT
 	$IPTABLES -t nat    -A serv -j DNAT --to-destination $RIP
@@ -77,7 +79,14 @@ case $1 in
 		start
 	;;
 	status)
-		iptables -L
+		echo TABLE: filter
+		iptables -t filter -L | sed -e 's/^/    /g'
+		echo TABLE: nat
+		iptables -t nat    -L | sed -e 's/^/    /g'
+		echo TABLE: mangle
+		iptables -t mangle -L | sed -e 's/^/    /g'
+		echo TABLE: raw
+		iptables -t raw    -L | sed -e 's/^/    /g'
 	;;
 	stop)
 		echo "Stopping iglooportal..."
