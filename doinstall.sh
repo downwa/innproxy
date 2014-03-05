@@ -25,3 +25,6 @@ apt-get install php5-fpm libapache2-mod-php5 mlocate binutils realpath bc
 /etc/init.d/php5-fpm restart
 /etc/init.d/zentyal webadmin restart
 /etc/init.d/apache2 restart
+
+echo "Add this line using 'crontab -e' to have server restart every day."
+echo "0   5  *   *   *     /etc/init.d/zentyal restart"
