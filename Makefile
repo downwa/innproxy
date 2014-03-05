@@ -22,3 +22,9 @@ bin:
 
 install: bin
 	./doinstall.sh
+
+run:
+	./runwww.sh
+
+stop:
+	./stopwww.sh
