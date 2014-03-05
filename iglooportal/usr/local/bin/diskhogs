@@ -1,6 +1,0 @@
-#!/bin/sh
-
-dir=$1
-[ "$dir" = "" ] && dir="."
-
-du -x "$dir" | sort -nr | more
