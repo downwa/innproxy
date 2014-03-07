@@ -35,7 +35,7 @@
     include "login.php";
   } else {
     include "redirect.php";
-    exec("ssh pi@innportal sudo /usr/bin/loginip $ipaddr ".escapeshellarg($user)); // Enable address in firewall, record user
+    exec("ssh pi@innportal sudo /usr/bin/loginip $ipaddr '' ".escapeshellarg($user)); // Enable address in firewall, record user
   }
 
   saveSession();
