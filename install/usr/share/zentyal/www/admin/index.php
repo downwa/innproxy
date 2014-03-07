@@ -17,11 +17,11 @@
       <input type="button" value="Create" onclick="post('parseForm', 'myForm');" />
     </form>
     
-    <div class="base title">Active Users</div>
-    <h4><a href="listinactive.php" title="Click to see available codes">Available</a></h4>
+    <div class="base title">WiFi Access Codes</div>
+    <!-- h4><a href="listinactive.php" title="Click to see available codes">Available</a></h4 -->
     <h4><a href="#" onclick="window.print();">Print</a></h4>
     <h4><a href="logout.html">Logout</a></h4>
-    <h4><a href="listactive.php?fix=1" title="Click to repair WiFI when login prompt appears after having logged in.">Repair</a></h4>
+    <!-- h4><a href="listactive.php?fix=1" title="Click to repair WiFI when login prompt appears after having logged in.">Repair</a></h4 -->
     <div class="main">
       <!-- h3>NOTE: Click on +/- and the Date at which the code should terminate.</h3 -->
 

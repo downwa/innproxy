@@ -22,8 +22,8 @@ echo "It works: path=".$_GET['redirect'];
 $ipaddr=$CLIENTIPS.(($_SERVER['REMOTE_PORT']-1024)%256);
 echo "ip=".$ipaddr;
 echo "<pre>";
-//echo "ssh pi@innportal sudo /usr/bin/banip ".$ipaddr;
-echo "ssh pi@innportal sudo /usr/bin/allowip ".$ipaddr."\n";
+//echo "ssh pi@innportal sudo /usr/bin/logouip ".$ipaddr;
+echo "ssh pi@innportal sudo /usr/bin/loginip ".$ipaddr."\n";
 print_r($_SERVER);
 echo "</pre>";
 
