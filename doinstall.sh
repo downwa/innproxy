@@ -10,8 +10,10 @@ ln -s /usr/share/zentyal/www /var/
 cp -av /home/administrator/innproxy/install/* /
 if [ ! -f /etc/apache2/passwd/passwords ]; then
 
+mkdir -p /etc/apache2/passwd
 for user in wdowns frontdesk justin; do
 	echo "Setting web password for $user..."
+	parm=""
 	[ "$user" = "wdowns" ] && parm="-c"
 	htpasswd $parm /etc/apache2/passwd/passwords "$user"
 done
@@ -28,3 +30,9 @@ apt-get install php5-fpm libapache2-mod-php5 mlocate binutils realpath bc
 
 echo "Add this line using 'crontab -e' to have server restart every day."
 echo "0   5  *   *   *     /etc/init.d/zentyal restart"
+
+if [ ! -f /var/lib/innproxy/ssl/ssl.pem -o ! -f /var/lib/innproxy/ssl/certs/gd_bundle.crt ]; then
+	echo "SSL certs need to be installed:"
+	echo "  /var/lib/innproxy/ssl/ssl.pem"
+	echo "  /var/lib/innproxy/ssl/certs/gd_bundle.crt"
+fi

@@ -2,8 +2,8 @@
 if($_GET['uid'] != "") {
 	$uid = $_GET['uid'];
 	// echo "Creating ".$uid;
-	system("sudo /home/administrator/scripts/adddiner ".$uid." 2>&1 | tee -a /tmp/useradd.log");
-	system("sudo /home/administrator/scripts/listusers >/tmp/curusers.txt");
+	system("sudo adddiner ".$uid." 2>&1 | tee -a /tmp/useradd.log");
+	system("sudo listusers >/tmp/curusers.txt");
 }
 ?>
 <html><head><title>Activate Diner Internet</title>

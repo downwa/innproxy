@@ -1,4 +1,4 @@
-<?php if(isset($_GET['act'])) { system("sudo /home/administrator/scripts/activate ".$_GET['uid']." ".$_GET['stay']); } ?>
+<?php if(isset($_GET['act'])) { system("sudo activate ".$_GET['uid']." ".$_GET['stay']); } ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
@@ -27,7 +27,7 @@
 </div>
 <br />
 
-<?php system("sudo /home/administrator/scripts/listinactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^diner' 'diner'"); ?>
+<?php system("sudo listinactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^diner' 'diner'"); ?>
 </div>
 
 <br /><hr />

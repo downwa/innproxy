@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# names=$(find /var/log/zentyal-captiveportal/access.log* -mtime -7)
+names=$(find /var/log/zentyal-captiveportal/access.log*)
+eval "$(lesspipe)" # Needed for less to work for .gz files
+less $names | wc -l

@@ -1,5 +1,5 @@
 <?php
-if(isset($_GET['act'])) { system("sudo /home/administrator/scripts/activate ".$_GET['uid']." ".$_GET['stay']); }
+if(isset($_GET['act'])) { system("sudo activate ".$_GET['uid']." ".$_GET['stay']); }
 if(isset($_GET['fix'])) { system("sudo /etc/init.d/zentyal captiveportal restart"); }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -30,7 +30,7 @@ if(isset($_GET['fix'])) { system("sudo /etc/init.d/zentyal captiveportal restart
 </div>
 <br />
 
-<?php system("sudo /home/administrator/scripts/listactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^[^d]|^d[^i]|^di[^n]|^din[^e]|^dine[^r]' 'list' 1"); ?>
+<?php system("sudo listactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^[^d]|^d[^i]|^di[^n]|^din[^e]|^dine[^r]' 'list' 1"); ?>
 
 </div>
 <br /><hr />

@@ -23,6 +23,9 @@ bin:
 install: bin
 	./doinstall.sh
 
+update:
+	cp -av /home/administrator/innproxy/install/* /
+
 start:
 	/etc/init.d/innproxy start
 

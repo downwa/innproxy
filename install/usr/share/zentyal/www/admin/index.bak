@@ -67,7 +67,7 @@ function j4p_datasrc($input) {
 </div>
 
 
-<!-- ?php system("sudo /home/administrator/scripts/listactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^[^d]|^d[^i]|^di[^n]|^din[^e]|^dine[^r]' 'list' 1"); ? -->
+<!-- ?php system("sudo listactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^[^d]|^d[^i]|^di[^n]|^din[^e]|^dine[^r]' 'list' 1"); ? -->
 
 </div>
 <br /><hr />

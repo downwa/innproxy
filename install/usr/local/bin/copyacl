@@ -1,0 +1,13 @@
+#!/bin/bash
+
+[ "$2" = "" ] && echo "Usage: copyacl [src] [dst]" 1>&2 && exit 1
+
+src=$1
+dst=$2
+
+# Copy ownership
+chown $(stat -c '%u.%g' "$src") "$dst"
+# Copy access
+chmod $(stat -c '%a' "$src") "$dst"
+# Copy ACLs
+getfacl "$src" | setfacl -bnM - "$dst"

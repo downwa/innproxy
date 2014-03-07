@@ -1,0 +1,47 @@
+#!/bin/bash
+
+uid=$1
+stay=$2
+subset=$3
+list=$4
+buttons=$5
+
+[ "$stay" == "" ] && stay=0
+[ "$stay" -lt 0 ] && stay=0
+
+# Normalize stay from 11 am of current day
+[ "$stay" -gt "0" ] && stay=$((((stay-1)/86400*86400)+86400))
+s=$(date --date "11:00" +%s); now=$(date +%s); stay=$((stay+s-now))
+
+# Generate leave string
+leave=$((now+stay)); leave=$(date --date "@$leave" +"11 am %a %b %d");
+
+mstay=$((stay-86400))
+[ "$mstay" -lt 0 ] && mstay=0
+pstay=$((stay+86400))
+
+[ "$stay" -lt 0 ] && stay=0
+[ "$stay" = "0" ] && uid=""
+
+# FAST but inaccurate: grep "^.*,.*,0,.*,.*" /tmp/usages.csv | sort -n -k 1.6 | \
+
+if [ "$subset" = "" ]; then
+	users=$(listusers)
+else
+	users=$(listusers | egrep "$subset")
+fi
+
+
+# cat "/tmp/usages.csv" | sort -n -k 1.6 | while IFS=, read uid password datestamp seconds usage; do
+#        d=$(($datestamp+$seconds))
+#        expires=$(date --date "@$d" +"%D %r")
+#        echo "$uid,$password,$usage,$expires"
+#done | sed -e 's/_/ /g'
+
+echo "$users" | grep -v "^.* .* 0 .*$" | sort -n -k 1.6 | while read uid password datestamp seconds; do
+	usage=$(grep "^$uid," /tmp/usages.csv | awk -F ',' '{print $5}')
+	[ "$usage" = "" ] && usage="0.00"
+	secleft=$((datestamp+seconds-now+s-now))
+	leaveat=$((now+secleft)); leaveat=$(date --date "@$leaveat" +"11 am %a %b %d");
+	echo "$uid,$password,$datestamp,$seconds,$usage,$leaveat"
+done | divulate -v uid=$uid -v mstay=$mstay -v pstay=$pstay -v leave="$leave" -v stay=$stay -v list=$list -v buttons=$buttons

@@ -3,8 +3,8 @@ if($_GET['uid'] != "") {
 	$uid = $_GET['uid'];
 	$seconds = $_GET['stay']*$_GET['unit'];
 	// echo "Creating ".$uid;
-	system("/home/administrator/scripts/adduser ".$uid." Room ".$uid." '' ".$seconds." | tee -a /tmp/useradd.log");
-	system("/home/administrator/scripts/listusers >/tmp/curusers.txt");
+	system("adduser ".$uid." Room ".$uid." '' ".$seconds." | tee -a /tmp/useradd.log");
+	system("listusers >/tmp/curusers.txt");
 }
 ?>
 <html><head><title>Activate User Internet</title>

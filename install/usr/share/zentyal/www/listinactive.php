@@ -1,12 +1,12 @@
 <?php
 	$acted=false;
-	if(isset($_GET['act'])) { system("sudo /home/administrator/scripts/activate ".$_GET['uid']." ".$_GET['stay']); $acted=true; }
+	if(isset($_GET['act'])) { system("sudo activate ".$_GET['uid']." ".$_GET['stay']); $acted=true; }
 	if($_GET['uid'] != "" && $_GET['staydays'] != "") {
         	$uid = $_GET['uid'];
         	$seconds = $_GET['staydays']*86400;
         	// echo "Creating ".$uid;
-        	system("sudo /home/administrator/scripts/adduser ".$uid." Room ".$uid." '' ".$seconds." | tee -a /tmp/useradd.log");
-        	system("sudo /home/administrator/scripts/listusers >/tmp/curusers.txt");
+        	system("sudo adduser ".$uid." Room ".$uid." '' ".$seconds." | tee -a /tmp/useradd.log");
+        	system("sudo listusers >/tmp/curusers.txt");
 		$acted=true;
 	} 
 ?>
@@ -37,7 +37,7 @@
 </div>
 <br />
 
-<?php system("sudo /home/administrator/scripts/listinactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^[^d]|^d[^i]|^di[^n]|^din[^e]|^dine[^r]' 'list' 1"); ?>
+<?php system("sudo listinactive-html '".$_GET['uid']."' '".$_GET['stay']."' '^[^d]|^d[^i]|^di[^n]|^din[^e]|^dine[^r]' 'list' 1"); ?>
 
 <br />
 <form>

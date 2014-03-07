@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Block given uid from access, then delete it.
+
+[ "$1" = "" ] && echo "Missing uid" 1>&2 && exit 1
+uid=$1
+
+sudo logout "$uid"
+sudo deluid "$uid"

@@ -1,0 +1,53 @@
+#!/bin/sh
+
+onerun() {
+	date +"%D %T: usages/logouts/timeouts"
+	usages                                # Keep track of usage of each user
+	fillusers >>/var/log/fillusers.log 2>&1   # Add new accounts for users that timed out on previous cycle
+	timeouts  >>/var/log/timeouts.log 2>&1    # Remove accounts of timed out users
+}
+
+restarted=0
+ud() {
+	cd 
+	mod=$(stat -c "%Y" usage.cc)
+	bin=$(stat -c "%Y" usage.bin)
+	chg=$((mod-bin))
+	[ "$chg" -gt 1 ] && {
+		date +"%D %T"
+		make
+	}
+	bin=$(stat -c "%Y" usage.bin)
+	[ "$bin" -gt "$restarted" ] && {
+		date +"%D %T"
+		killall usage.bin
+	}
+	pidof usage.bin >/dev/null || {
+		usage.bin </dev/null >/dev/null &
+		restarted=$(date +%s)
+	}
+}
+usagedaemon() {
+	ud >/var/log/usagedaemon.log.tmp 2>&1 </dev/null
+	[ -s /var/log/usagedaemon.log.tmp ] && mv -f /var/log/usagedaemon.log.tmp /var/log/usagedaemon.log
+}
+
+daemon() {
+	date +"%D %T: Proxy Daemon"
+	olog=""
+	gzip /var/log/fillusers.log
+	gzip /var/log/timeouts.log
+	pidof usage.bin && killall usage.bin
+	while [ true ]; do
+		usagedaemon
+		LOG=$(date +"/var/log/proxydaemon-%A.log")
+		if [ "$LOG" != "$olog" -a "$olog" != "" ]; then # Rotate log
+			gzip "$olog"
+		fi
+		onerun >>"$LOG"
+		sleep 60
+		olog=$LOG
+	done
+}
+
+daemon

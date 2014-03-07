@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Logout given uid
+uid=$1
+[ "$uid" = "" ] && echo "Missing user id" 1>&2 && exit 1
+
+LOG="/var/log/zentyal-captiveportal/access.log"
+SESS="/var/lib/zentyal-captiveportal/sessions"
+COOK="EBox::CaptivePortal::Auth_EBox="
+
+dologout() {
+	local ip=$1
+	local cookie=$2
+	printf "dologout: ip=$ip\ncookie=$cookie\n"
+	for try in 1 2; do
+		wget --no-check-certificate --no-cookies --header "Cookie: $cookie" "https://192.168.2.1:4443/Logout" 2>&1 | grep "403 Forbidden" && break;
+	done
+	# Remove iptables rules and connection tracking
+	mac=$(/usr/sbin/arp "$ip" | tail -n 1 | awk '{print $3}')
+	/usr/sbin/conntrack -D -p tcp --src "$ip"
+	/sbin/iptables -t nat -D captive -s "$ip" -m mac --mac-source $mac -m comment --comment "user:$uid" -j RETURN
+	/sbin/iptables -D fcaptive -s "$ip" -m mac --mac-source $mac -m comment --comment "user:$uid" -j RETURN
+	/sbin/iptables -D icaptive -s "$ip" -m mac --mac-source $mac -m comment --comment "user:$uid" -j RETURN
+}
+
+delaylogout() {
+	sleep 60
+	dologout "$1" "$2"
+}
+
+echo uid=$uid
+grep -H "^user: $uid$" "$SESS"/* 2>/dev/null | cut -d ':' -f 1 | while read session; do
+	echo "$session"
+	cat "$session"
+	echo "*****************"
+	sid=$(grep "^sid: " "$session" | awk '{print $2}')
+	ip=$(grep "^ip: " "$session" | awk '{print $2}')
+	dologout "$ip" "$sid" # Hope this works as a cookie
+	cookie=$(grep "^$ip - .* .*$COOK" "$LOG" | cut -d '"' -f 10 | grep "$COOK$sid" | head -n 1 | sed -e "s/.*$COOK//g" -e 's/; .*//g')
+	if [ "$cookie" != "" ]; then
+		delaylogout "$ip" "$cookie" &
+	fi
+	if [ -f "$session" ]; then
+		base=$(basename "$session")
+		mv "$session" "/tmp/sessionold-$uid.yaml"
+	fi
+done  >/tmp/logout-$uid.log 2>&1

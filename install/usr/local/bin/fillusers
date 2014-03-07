@@ -1,0 +1,10 @@
+#!/bin/sh
+
+for user in 103 104 105 106 107 108 109 111 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 diner01 diner02 diner03 diner04 diner05 diner06 diner07 diner08 diner09 diner10 diner11 diner12 diner13 diner14 diner15 diner16 diner17 diner18 diner19 diner20; do
+	grep -q "^$user," /tmp/usages.csv || {
+		date +"%D %T: fillusers: adding $user"
+		addany "$user"
+		sleep 1
+	}
+done
+usages

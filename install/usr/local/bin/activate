@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use EBox;
+use EBox::Users::User;
+use Text::Password::Pronounceable;
+
+my $datestamp = POSIX::strftime("%s", localtime);
+
+EBox::init();
+
+my $parent = EBox::Users::User->defaultContainer();
+
+my $username = $ARGV[0];
+my $seconds  = $ARGV[1];
+#printf "ACTIVATE uid=$username,seconds=$seconds\n";
+eval {
+	my $cn; open INI,"/etc/innproxy.settings"; eval(<INI>);
+	my $dn="uid=$username,ou=Users,".$cn;
+	my $user = new EBox::Users::User(dn => $dn);
+        my @fields=split /\s+/, $user->description;
+        my $password  = $fields[0];
+        # my $seconds   = $fields[2]; # Ignore existing seconds value
+	$user->set('description',"$password $datestamp $seconds");
+	$user->save();
+#	printf "<br />ACTIVATE uid=$username,description=" . $user->description . "\n";
+};
+if ($@) { printf("ACTIVATE: %s",$@); }
+
+1;

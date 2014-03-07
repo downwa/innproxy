@@ -1,0 +1,27 @@
+#!/bin/bash
+
+LIMITFILE="/usr/share/zentyal/templates/captiveportal/login.mas" # Limit should be mentioned in the login template
+limit=$(grep -i limit "$LIMITFILE" 2>/dev/null | sed -e 's/.*\([1-9][0-9]*\).*/\1/g')
+[ "$limit" = "" ] && limit=100
+gracelimit=$((limit*12/10)) # 20% grace on limit (in case captiveportal does not limit immediately)
+
+>/tmp/cleanup_uids.txt.tmp # Marked UIDs will be removed on next pass by 'cleanups' script.
+# Lines e.g. 103,AYLNLT,1382484953,259200,   2.38
+# Output: uid,usage,secondsleft
+s=$(date +%s)
+cat "/tmp/usages.csv" | while IFS=, read uid password datestamp seconds usage; do
+
+	# Below, mark in use if usage is non-zero
+	[ "$usage" != "   0.00" -a "$datestamp" = "0" ] && setstamp $uid
+
+	[ "$datestamp" = "0" ] && datestamp=$s # Don't timeout if datestamp is zero (not used yet)
+	secsleft=$(($datestamp+$seconds-$s))
+	usage=$(echo "$usage/1" | bc)
+	[ "$usage" -lt $gracelimit -a $secsleft -gt 0 ] && continue
+
+	# DELETE accounts 20% over the limit, or which have exceeded their scheduled time (e.g. hotel guests have checked out)
+	date +"%D %T: uid=$uid,usage=$usage,secsleft=$secsleft"
+	deluser "$uid"
+	echo "$uid" >>/tmp/cleanup_uids.txt.tmp
+done
+mv /tmp/cleanup_uids.txt.tmp /tmp/cleanup_uids.txt

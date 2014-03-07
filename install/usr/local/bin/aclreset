@@ -1,0 +1,5 @@
+#!/bin/sh
+
+[ "$1" = "" ] && echo "Usage: aclreset [target file] # Set all access for anybody" 1>&2 && exit 1
+
+samba-tool ntacl set '' "$1" 2>/tmp/aclreset.log || cat /tmp/aclreset.log

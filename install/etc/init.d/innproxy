@@ -1,13 +1,13 @@
 #!/bin/sh
 
 start() {
-        /usr/sbin/apache2 -f /var/lib/iglooportal/apache2.conf -DNO_DETACH &
+        /usr/sbin/apache2 -f /var/lib/innproxy/apache2.conf -DNO_DETACH &
         sleep 1
 	status
 }
 
 stop() {
-	pids=$(ps waxf | grep iglooportal | grep -v grep | awk '{print $1}')
+	pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
 	echo "PIDS: $pids"
 	[ "$pids" != "" ] && kill -9 $pids
 }
