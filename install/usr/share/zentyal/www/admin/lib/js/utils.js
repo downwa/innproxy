@@ -2,7 +2,6 @@
 $(function() {$("#datepicker").datepicker(); });
 
 var COLUMNS=3;
-var clsidx=0; // Start at end since we build in reverse
 
 function post(fn,form) { php('async',fn,$('#'+form).serialize()); }
 function run(fn) {
@@ -39,11 +38,14 @@ function fillTable(obj,data,dsname) {
     obj.style.display='none';
     if(data==null) { return; }
     var printClasses=obj.getAttribute("data-iglooware-printclasses").split(",");
-    for(var key in data) {
+    var sortedKeys=keys(data).sort().reverse(); // ["a", "b", "z"]
+    var clsidx=(sortedKeys.length%COLUMNS)-1; // Start at end since we build in reverse
+    for(var xa=0; xa<sortedKeys.length; xa++) { // key in data) {
+      if(clsidx < 0) { clsidx=COLUMNS-1; }
       var appendClass=printClasses[clsidx];
-        appendClone(obj,data[key],dsname,appendClass);
+      //alert('clsidx='+clsidx);
+      appendClone(obj,data[sortedKeys[xa]],dsname,appendClass);
         clsidx--;
-        if(clsidx < 0) { clsidx=COLUMNS-1; }
     }
   }
   catch(e) { alert('fillTable: '+e.message); }
@@ -61,4 +63,12 @@ function appendClone(obj,data,dsname,appendClass) {
   for(var key in data) {
     oclone.innerHTML=oclone.innerHTML.replace("$"+key,data[key]);
   }
+}
+
+function keys(obj) {
+  var keys = [];  
+  for(var key in obj) {
+    if(obj.hasOwnProperty(key)) { keys.push(key); }
+  }
+  return keys;
 }

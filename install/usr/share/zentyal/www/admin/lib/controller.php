@@ -54,30 +54,15 @@ require_once(dirname(__FILE__) . "/pwgen.class.php");
   $users->$uid->leave=fdate($datetime2);
 
   file_put_contents("/var/lib/innproxy/users.json", json_encode($users));
-  //J4P::addResponse()->alert(print_r($users));
-  //J4P::addResponse()->document->getElementById("output")->innerHTML = print_r($formData, true);
-  //J4P::addResponse()->alert("uid=$uid;password=$password;at=$datetime1;secs=$secs;days=$days");
-  //J4P::addResponse()->alert(print_r($users));
   J4P::addResponse()->fillTables('users',$users);
 }
 
 function j4p_datasrc($input) {
   parse_str($input, $formData);
-  
-  
-//   $users[0]=array();
-//   $users[0]['user']='test';
-//   $users[0]['pass']='PASSWD';
-//   
-//   $users[1]=array();
-//   $users[1]['user']='101';
-//   $users[1]['pass']='SOMABC';
   $users = json_decode(file_get_contents("/var/lib/innproxy/users.json"));
-  
-  
   //J4P::addResponse()->document->getElementById("output2")->innerHTML = print_r($users, true);
-  //J4P::addResponse()->eval("setTimeout('data()',1000);");
   J4P::addResponse()->fillTables('users',$users);
+  J4P::addResponse()->eval("setTimeout('data()',5000);");
 }
 
 ?>
