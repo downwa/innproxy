@@ -1,5 +1,10 @@
 <?php
 
+  $CLIENTIPS="192.168.42.";
+
+  ini_set('display_errors',1); 
+  error_reporting(E_ALL); //error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+
 //require_once "lib/j4p/J4P.php";
 //require_once "lib/utils.php";
 include(dirname(__FILE__) . "/j4p/J4P.php");
@@ -52,6 +57,8 @@ require_once(dirname(__FILE__) . "/pwgen.class.php");
   $users->$uid->active=$datetime1;
   $users->$uid->stay=$secs;
   $users->$uid->leave=fdate($datetime2);
+  $users->$uid->macaddr='';
+  $users->$uid->ipaddr='';
 
   file_put_contents("/var/lib/innproxy/users.json", json_encode($users));
   J4P::addResponse()->fillTables('users',$users);
@@ -65,4 +72,13 @@ function j4p_datasrc($input) {
   J4P::addResponse()->eval("setTimeout('data()',5000);");
 }
 
+function j4p_logout($input) {
+  parse_str($input, $formData);
+  global $CLIENTIPS;
+  $ipaddr=$CLIENTIPS.(($_SERVER['REMOTE_PORT']-1024)%256); // Calculate IP address of client
+  $result=shell_exec("ssh pi@innportal sudo /usr/bin/logoutip $ipaddr \'\' ".escapeshellarg($formData['user'])." 2>&1"); // Disable address in firewall, record user
+  if(strpos($result,"does not translate to a MAC address") !== FALSE) {
+    J4P::addResponse()->alert("User is not currently logged in.  To block user, Create a new password for the same User. (result=".$result.")");
+  }
+}
 ?>

@@ -12,9 +12,9 @@
   </head>
   <body onload="data()">
     <form name="myForm" id="myForm">
-      <span>User</span><input name="uid" value="" />&nbsp;
-      <span>Leaving</span>&nbsp;<input id="datepicker" name="end" value="<?=now()?>" type="text" /><img src="lib/img/cal.gif" id="cal"/>
-      <input type="button" value="Create" onclick="post('parseForm', 'myForm');" />
+      <span>User</span>&nbsp;<input name="uid" id="uid" value="" />&nbsp;
+      <span>Leaving</span>&nbsp;<input id="datepicker" name="end" value="<?=today()?>" type="text" /><input 
+        type="button" value="Create" onclick="post('parseForm', 'myForm');" />
     </form>
     
     <div class="base title">WiFi Access Codes</div>
@@ -34,13 +34,13 @@
 
       <div class="base box" data-iglooware-printclasses="lft,mid,rht" data-iglooware-datasrc="users">
         <div class="join">
-          <span class="print">&nbsp;&nbsp;User: </span><b>$user</b>
+          <span class="print">&nbsp;&nbsp;User: </span><a href="#" onclick="run('logout',{user:'$user'});" title="Log out"><b>$user</b></a>
         </div>
         <div class="join">
           <span class="print">Pass: </span><b>$pass</b>
         </div>
         <div class="join buttons">
-          <span class="small">$leave  <!-- $curUsage --></span>
+          <span class="small" title="mac:$macaddr ip:$ipaddr">$leave  <!-- $curUsage --></span>
         </div>
       </div>
     </div>

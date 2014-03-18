@@ -21,6 +21,11 @@
         hr        { clear:left; width:98%; }
         #ui-datepicker-div { font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif"; font-size: 62.5%; }
         #cal { position: relative; z-index: 100; left: -22px; top:2px; }
+        
+        .ui-datepicker-trigger { position:relative;top:3px ;right:20px ; height:16px }
+        #uid        { width:86pt; }
+        #datepicker { width:80pt; }
+        
 }
 
 @media print {

@@ -28,14 +28,14 @@
     $pass = preg_replace('/[^\p{L}\p{N}\s]/u', '', $pass); // Replace symbols
     if($users->$user->pass == $pass) { $authenticated=1; }
     else { $reason="Invalid username or password."; }
-    //$authenticated=shell_exec("sudo /home/administrator/innproxy/scripts/auth ".escapeshellarg($user)." ".escapeshellarg($pass)." 2>&1");
-    //if($authenticated != 1) { $reason="Login failed (".$authenticated.")"; }
+    file_put_contents("/tmp/auth-".$ipaddr,0);
   }
   if($authenticated != 1) {
     include "login.php";
+    //echo "<!--"; print_r($_SERVER); echo "-->";
   } else {
     include "redirect.php";
-    exec("ssh pi@innportal sudo /usr/bin/loginip $ipaddr '' ".escapeshellarg($user)); // Enable address in firewall, record user
+    file_put_contents("/tmp/auth-".$ipaddr,date_timestamp_get(date_create())." ".escapeshellarg($user));
   }
 
   saveSession();

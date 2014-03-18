@@ -1,5 +1,12 @@
 // Initialize calendar
-$(function() {$("#datepicker").datepicker(); });
+//$(function() {$("#datepicker").datepicker(); });
+ $(function() {$("#datepicker").datepicker({
+  buttonImage: 'lib/img/cal.gif',
+  buttonImageOnly: true,
+  changeMonth: true,
+  changeYear: true,
+  showOn: 'both',
+})});
 
 var COLUMNS=3;
 
@@ -61,7 +68,9 @@ function appendClone(obj,data,dsname,appendClass) {
   oclone.style.display='';
   // Fill clone with data
   for(var key in data) {
-    oclone.innerHTML=oclone.innerHTML.replace("$"+key,data[key]);
+    var regex = new RegExp("\\$"+key, 'g');
+    oclone.innerHTML=oclone.innerHTML.replace(regex, data[key]);  
+    //oclone.innerHTML=oclone.innerHTML.replace("$"+key,data[key]);
   }
 }
 
