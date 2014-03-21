@@ -1,7 +1,7 @@
 <html>
   <head><title>Welcome to <?=$site_name?></title>
     <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-    <meta http-equiv="refresh" content="5; url=<?=$redirect?>" >
+    <meta http-equiv="refresh" content="10; url=<?=$redirect?>" >
     <LINK rel="stylesheet" type="text/css" href="styles/public.css" />
   </head>
 

@@ -20,10 +20,11 @@ tsdiff=$(($ts-$stamp))
 if [ "$tsdiff" -lt -60 -o "$tsdiff" -gt 60 ]; then # Auth failed
 	echo "FALSE"
 else
-	echo "TRUE $user"
+	response="TRUE $user"
 	user=$(echo "$user" | cut -d "'" -f 2)
 	jqp=".[\"$user\"].ipaddr=\"$ip\" | .[\"$user\"].macaddr=\"$mac\""
 	jq "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	echo "$response" # Sent after jq logs user in to avoid race condition
 fi
 mv "$sfile" "$sfile.done"
 chown www-data.www-data "$USERS"

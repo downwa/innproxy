@@ -1,22 +1,73 @@
 #!/bin/bash
 
+USAGES="/var/lib/innproxy/users/"
 USERS="/var/lib/innproxy/users.json"
 JQ="/usr/local/bin/jq" # Need newer version which provides 'has()' function
 
 source /etc/innproxy # OVERUSE
 
-IFS=,
-cat /var/lib/innproxy/users/*.csv | awk -F, '{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }' | while read bytes user; do
-	bytes=$(echo "$bytes" | awk '{print $1}')
-	jqp="if has(\"$user\") then .[\"$user\"].bytes=$bytes else . end"
-	$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+usage() {
+	# Record usage as given by firewalls
+	failsafe
+	OLDIFS=$IFS
+	IFS=,
+	cat "$USAGES"*.csv | awk -F, '{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }' | while read bytes user; do
+		bytes=$(echo "$bytes" | awk '{print $1}')
+		jqp="if has(\"$user\") then .[\"$user\"].bytes=$bytes else . end"
+		$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	done
+	IFS=$OLDIFS
+	restore "usage"
+}
+
+overuse() {
+	# Disable over-users
+	failsafe
+	$JQ "(.[] | select(.bytes > $OVERUSE) | .disabled) = true" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	restore "overuse"
+}
+
+expired() {
+	# Remove expired users
+	failsafe
+	now=$(date +%s)
+	jqp=".[] | {(.user):select($now - .active <= .stay)}"	# Select only users whose remaining time is less than stay
+	s1='s/^{//g'		# Remove open {
+	s2='s/}$/,/g'		# Replace } with ,
+	s3='$ s/},$/}/g'	# Except no , on last line 
+	( echo "{"; jq -c "$jqp" <$USERS | sed -e "$s1" -e "$s2" -e "$s3"; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	restore "expired"
+}
+
+failsafe() {
+	size=$(stat -c "%s" "$USERS")
+	if [ "$size" -gt 10 ]; then
+		cp "$USERS" "$USERS.failsafe"
+	fi
+}
+
+restore() {
+	stage=$1
+	size=$(stat -c "%s" "$USERS")
+	if [ "$size" -le 10 ]; then
+		cp "$USERS.failsafe" "$USERS"
+		echo "ERROR: Had to restore $USERS in stage $stage"
+	fi
+}
+
+usagewatch() {
+	date +"%D %T: usage"
+	usage
+	date +"%D %T: overuse"
+	overuse
+	date +"%D %T: expired"
+	expired
+	date +"%D %T: result"
+	jq . <"$USERS"
+	chown www-data.www-data "$USERS"
+}
+
+while [ true ]; do
+	usagewatch >/var/log/usagewatch.log 2>&1 </dev/null
+	sleep 60
 done
-
-# Disable over-users
-$JQ "(.[] | select(.bytes > $OVERUSE) | .disabled) = true" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-
-# Remove expired users
-now=$(date +%s)
-( echo "{"; jq -c ".[] | {(.user):select($now - .active <= .stay)}" <$USERS | sed -e 's/^{//g' -e 's/}$/,/g' -e '$ s/},$/}/g'; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-
-chown www-data.www-data "$USERS"
