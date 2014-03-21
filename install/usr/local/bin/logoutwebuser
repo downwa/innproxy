@@ -1,0 +1,9 @@
+#!/bin/sh
+
+user=$1
+
+USERS="/var/lib/innproxy/users.json"
+
+jqp=".[\"$user\"].ipaddr=\"\" | .[\"$user\"].macaddr=\"\""
+jq "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+chown www-data.www-data "$USERS"

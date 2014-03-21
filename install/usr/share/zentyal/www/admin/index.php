@@ -8,7 +8,7 @@
     <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
     <script src="lib/js/utils.js"></script>
-    <?php J4P::outputJs(0); ?>
+    <?php J4P::outputJs(1); ?>
   </head>
   <body onload="data()">
     <form name="myForm" id="myForm">
@@ -40,7 +40,7 @@
           <span class="print">Pass: </span><b>$pass</b>
         </div>
         <div class="join buttons">
-          <span class="small" title="mac:$macaddr ip:$ipaddr">$leave  <!-- $curUsage --></span>
+          <span class="small" title="mac:$macaddr ip:$ipaddr bytes:$bytes">$leave  <!-- $curUsage --></span>
         </div>
       </div>
     </div>

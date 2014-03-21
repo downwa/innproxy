@@ -1,0 +1,4 @@
+# InnProxy settings file (bash script)
+
+# Daily bytes of usage considered to be excessive
+OVERUSE=110000000

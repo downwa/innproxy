@@ -1,6 +1,7 @@
 <?php
 
   $CLIENTIPS="192.168.42.";
+  $USERS="/var/lib/innproxy/users.json";
 
   ini_set('display_errors',1); 
   error_reporting(E_ALL); //error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
@@ -26,10 +27,10 @@ function fdate($timestamp) {
 }
 
 function j4p_parseForm($input) {
+	global $USERS;
+	require_once(dirname(__FILE__) . "/pwgen.class.php");
 
-require_once(dirname(__FILE__) . "/pwgen.class.php");
-
-  $users = json_decode(file_get_contents("/var/lib/innproxy/users.json"));
+  $users = json_decode(file_get_contents($USERS));
 
   parse_str($input, $formData);
   
@@ -50,23 +51,33 @@ require_once(dirname(__FILE__) . "/pwgen.class.php");
     J4P::addResponse()->alert("Invalid user or date.");
     return;
   }
-  
-  $users->$uid=new stdClass();
-  $users->$uid->user=$uid;
-  $users->$uid->pass=$password;
-  $users->$uid->active=$datetime1;
-  $users->$uid->stay=$secs;
-  $users->$uid->leave=fdate($datetime2);
-  $users->$uid->macaddr='';
-  $users->$uid->ipaddr='';
+  //$users[$uid]=new stdClass();
+	$users->$uid=new stdClass();
+	@$users->$uid->user=$uid;
+	@$users->$uid->pass=$password;
+	@$users->$uid->active=$datetime1;
+	@$users->$uid->stay=$secs;
+	@$users->$uid->leave=fdate($datetime2);
+	@$users->$uid->macaddr='';
+	@$users->$uid->ipaddr='';
+	@$users->$uid->bytes=0;
+	@$users->$uid->disabled=false;
 
-  file_put_contents("/var/lib/innproxy/users.json", json_encode($users));
+  if(@file_put_contents($USERS.".tmp", json_encode($users)) === FALSE) {
+		J4P::addResponse()->alert('1:Unable to save user.');
+  }
+  else {
+		if(rename($USERS.".tmp",$USERS) === FALSE) {
+			J4P::addResponse()->alert('2:Unable to save user.');
+		}
+	}
   J4P::addResponse()->fillTables('users',$users);
 }
 
 function j4p_datasrc($input) {
+	global $USERS;
   parse_str($input, $formData);
-  $users = json_decode(file_get_contents("/var/lib/innproxy/users.json"));
+  $users = json_decode(file_get_contents($USERS));
   //J4P::addResponse()->document->getElementById("output2")->innerHTML = print_r($users, true);
   J4P::addResponse()->fillTables('users',$users);
   J4P::addResponse()->eval("setTimeout('data()',5000);");

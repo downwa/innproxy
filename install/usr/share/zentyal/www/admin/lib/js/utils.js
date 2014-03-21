@@ -52,7 +52,7 @@ function fillTable(obj,data,dsname) {
       var appendClass=printClasses[clsidx];
       //alert('clsidx='+clsidx);
       appendClone(obj,data[sortedKeys[xa]],dsname,appendClass);
-        clsidx--;
+      clsidx--;
     }
   }
   catch(e) { alert('fillTable: '+e.message); }
@@ -63,16 +63,19 @@ function appendClone(obj,data,dsname,appendClass) {
   var oclone=obj.cloneNode(true);
   if(obj.nextSibling) { obj.parentNode.insertBefore(oclone, obj.nextSibling); }
   else { obj.parentNode.appendChild(oclone); }
-  oclone.setAttribute("data-iglooware-datasrc","CLONE-"+dsname);
-  oclone.className+=' '+appendClass;
-  oclone.style.display='';
-  // Fill clone with data
+	// Fill clone with data
+  var hasIP=false;
   for(var key in data) {
-    var regex = new RegExp("\\$"+key, 'g');
-    oclone.innerHTML=oclone.innerHTML.replace(regex, data[key]);  
-    //oclone.innerHTML=oclone.innerHTML.replace("$"+key,data[key]);
-  }
-}
+		var regex = new RegExp("\\$"+key, 'g');
+		oclone.innerHTML=oclone.innerHTML.replace(regex, data[key]);
+		if(key == "ipaddr" && data[key] != "") { hasIP=true; }
+	}
+	if(hasIP) { appendClass+=' hasIP'; }
+	// Set style
+	oclone.setAttribute("data-iglooware-datasrc","CLONE-"+dsname);
+	oclone.className+=' '+appendClass;
+	oclone.style.display='';
+	}
 
 function keys(obj) {
   var keys = [];  

@@ -25,6 +25,7 @@
         .ui-datepicker-trigger { position:relative;top:3px ;right:20px ; height:16px }
         #uid        { width:86pt; }
         #datepicker { width:80pt; }
+        .hasIP     { background-color: #def; }
         
 }
 

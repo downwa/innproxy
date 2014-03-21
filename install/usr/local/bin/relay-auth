@@ -1,12 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 
 ip=$1
 mac=$2
+
+USERS="/var/lib/innproxy/users.json"
+
 echo "awaiting auth for $ip,$mac"
 stamp=$(date +%s)
 sfile="/tmp/auth-$ip"
-while [ ! -f "$sfile" ]; do sleep 1; done
-tsUser=$(cat "$sfile") # Get timestamp, user
+# Timeout after one minute
+for((t=0; t<60; t++)); do
+	[ -f "$sfile" ] && break;
+	sleep 1
+done
+tsUser=$(cat "$sfile" 2>/dev/null) # Get timestamp, user
 ts=$(echo "$tsUser" | cut -d ' ' -f 1)
 user=$(echo "$tsUser" | cut -d ' ' -f 2-)
 tsdiff=$(($ts-$stamp))
@@ -16,6 +23,7 @@ else
 	echo "TRUE $user"
 	user=$(echo "$user" | cut -d "'" -f 2)
 	jqp=".[\"$user\"].ipaddr=\"$ip\" | .[\"$user\"].macaddr=\"$mac\""
-	jq "$jqp" </var/lib/innproxy/users.json >/var/lib/innproxy/users.json.tmp && mv /var/lib/innproxy/users.json.tmp /var/lib/innproxy/users.json
+	jq "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
 fi
-rm -f "$sfile"
+mv "$sfile" "$sfile.done"
+chown www-data.www-data "$USERS"

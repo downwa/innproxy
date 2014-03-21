@@ -1,0 +1,22 @@
+#!/bin/bash
+
+USERS="/var/lib/innproxy/users.json"
+JQ="/usr/local/bin/jq" # Need newer version which provides 'has()' function
+
+source /etc/innproxy # OVERUSE
+
+IFS=,
+cat /var/lib/innproxy/users/*.csv | awk -F, '{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }' | while read bytes user; do
+	bytes=$(echo "$bytes" | awk '{print $1}')
+	jqp="if has(\"$user\") then .[\"$user\"].bytes=$bytes else . end"
+	$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+done
+
+# Disable over-users
+$JQ "(.[] | select(.bytes > $OVERUSE) | .disabled) = true" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+
+# Remove expired users
+now=$(date +%s)
+( echo "{"; jq -c ".[] | {(.user):select($now - .active <= .stay)}" <$USERS | sed -e 's/^{//g' -e 's/}$/,/g' -e '$ s/},$/}/g'; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+
+chown www-data.www-data "$USERS"

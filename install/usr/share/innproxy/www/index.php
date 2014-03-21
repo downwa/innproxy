@@ -27,15 +27,21 @@
     $user = preg_replace('/[^\p{L}\p{N}\s]/u', '', $user); // Replace symbols
     $pass = preg_replace('/[^\p{L}\p{N}\s]/u', '', $pass); // Replace symbols
     if($users->$user->pass == $pass) { $authenticated=1; }
-    else { $reason="Invalid username or password."; }
-    file_put_contents("/tmp/auth-".$ipaddr,0);
+    else {
+			$reason="Invalid username or password.";
+			file_put_contents("/tmp/auth-".$ipaddr,0);
+		}
   }
   if($authenticated != 1) {
     include "login.php";
     //echo "<!--"; print_r($_SERVER); echo "-->";
   } else {
-    include "redirect.php";
-    file_put_contents("/tmp/auth-".$ipaddr,date_timestamp_get(date_create())." ".escapeshellarg($user));
+    if(file_put_contents("/tmp/auth-".$ipaddr,date_timestamp_get(date_create())." ".escapeshellarg($user)) === FALSE) {
+			echo "Server authentication error.";
+    }
+    else {
+			include "redirect.php";
+		}
   }
 
   saveSession();
