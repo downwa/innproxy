@@ -26,11 +26,21 @@ function fdate($timestamp) {
   return date("m/d/Y",$timestamp);
 }
 
+function saveUsers($users) {
+	global $USERS;
+  if(@file_put_contents($USERS.".tmp", json_encode($users)) === FALSE) {
+		J4P::addResponse()->alert('1:Unable to save user.');
+  }
+  else {
+		if(rename($USERS.".tmp",$USERS) === FALSE) {
+			J4P::addResponse()->alert('2:Unable to save user.');
+		}
+	}
+}
+
 function j4p_parseForm($input) {
 	global $USERS;
 	require_once(dirname(__FILE__) . "/pwgen.class.php");
-
-  $users = json_decode(file_get_contents($USERS));
 
   parse_str($input, $formData);
   
@@ -51,26 +61,20 @@ function j4p_parseForm($input) {
     J4P::addResponse()->alert("Invalid user or date.");
     return;
   }
-  //$users[$uid]=new stdClass();
+  
+  $users = json_decode(file_get_contents($USERS));
 	$users->$uid=new stdClass();
-	@$users->$uid->user=$uid;
-	@$users->$uid->pass=$password;
-	@$users->$uid->active=$datetime1;
-	@$users->$uid->stay=$secs;
-	@$users->$uid->leave=fdate($datetime2);
-	@$users->$uid->macaddr='';
-	@$users->$uid->ipaddr='';
-	@$users->$uid->bytes=0;
-	@$users->$uid->disabled=false;
-
-  if(@file_put_contents($USERS.".tmp", json_encode($users)) === FALSE) {
-		J4P::addResponse()->alert('1:Unable to save user.');
-  }
-  else {
-		if(rename($USERS.".tmp",$USERS) === FALSE) {
-			J4P::addResponse()->alert('2:Unable to save user.');
-		}
-	}
+	$users->$uid->user=$uid;
+	$users->$uid->pass=$password;
+	$users->$uid->active=$datetime1;
+	$users->$uid->stay=$secs;
+	$users->$uid->leave=fdate($datetime2);
+	$users->$uid->macaddr='';
+	$users->$uid->ipaddr='';
+	$users->$uid->bytes=0;
+	$users->$uid->disabled=false;
+	saveUsers($users);
+	
   J4P::addResponse()->fillTables('users',$users);
 }
 
@@ -83,13 +87,19 @@ function j4p_datasrc($input) {
   J4P::addResponse()->eval("setTimeout('data()',5000);");
 }
 
-function j4p_logout($input) {
+function j4p_able($input) {
+	global $USERS;
   parse_str($input, $formData);
-  global $CLIENTIPS;
-  $ipaddr=$CLIENTIPS.(($_SERVER['REMOTE_PORT']-1024)%256); // Calculate IP address of client
-  $result=shell_exec("ssh pi@innportal sudo /usr/bin/logoutip $ipaddr \'\' ".escapeshellarg($formData['user'])." 2>&1"); // Disable address in firewall, record user
-  if(strpos($result,"does not translate to a MAC address") !== FALSE) {
-    J4P::addResponse()->alert("User is not currently logged in.  To block user, Create a new password for the same User. (result=".$result.")");
+  $uid = $formData['user'];  
+  if($uid == "") {
+    J4P::addResponse()->alert("Invalid user or date.");
+    return;
   }
+  
+  $users = json_decode(file_get_contents($USERS));
+  $users->$uid->disabled=!$users->$uid->disabled;
+	saveUsers($users);
+	
+  J4P::addResponse()->fillTables('users',$users);
 }
 ?>

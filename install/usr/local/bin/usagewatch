@@ -4,11 +4,13 @@ USAGES="/var/lib/innproxy/users/"
 USERS="/var/lib/innproxy/users.json"
 JQ="/usr/local/bin/jq" # Need newer version which provides 'has()' function
 
-source /etc/innproxy # OVERUSE
-
 usage() {
+	source /etc/innproxy # OVERUSE
 	# Record usage as given by firewalls
 	failsafe
+	# Initialize bytes to zero
+	$JQ "(.[] | .bytes) = 0" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	# Set bytes to actual usage since checkout
 	OLDIFS=$IFS
 	IFS=,
 	cat "$USAGES"*.csv | awk -F, '{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }' | while read bytes user; do

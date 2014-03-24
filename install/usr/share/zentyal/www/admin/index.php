@@ -28,19 +28,23 @@
       <div class="base lft box rowhead" style="text-decoration:underline" >
         <div class="join col">User</div>
         <div class="join col">Password</div>
-        <div class="join col buttons">Expiry/Today's Usage</div>
+        <div class="join col buttons">Expiry</div>
+        <div class="joinmeter col">Today's Usage (100Mb max)</div>
       </div>
       <br />
 
       <div class="base box" data-iglooware-printclasses="lft,mid,rht" data-iglooware-datasrc="users">
         <div class="join">
-          <span class="print">&nbsp;&nbsp;User: </span><a href="#" onclick="run('logout',{user:'$user'});" title="Log out"><b>$user</b></a>
+          <span class="print">&nbsp;&nbsp;User: </span><a href="#" onclick="run('able',{user:'$user'});" title="Enable/Disable account"><b>$user</b></a>
         </div>
         <div class="join">
           <span class="print">Pass: </span><b>$pass</b>
         </div>
         <div class="join buttons">
-          <span class="small" title="mac:$macaddr ip:$ipaddr bytes:$bytes">$leave  <!-- $curUsage --></span>
+          <span class="small" title="mac:$macaddr ip:$ipaddr bytes:$bytes">$leave</span>
+        </div>
+        <div class="meter">
+					<span style="width: $pct%" title="$mbytes Mb">$mbytes Mb</span>
         </div>
       </div>
     </div>

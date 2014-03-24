@@ -21,6 +21,7 @@
   </head>
   
   <body onload="document.getElementById('user').focus();">
+  <!-- NOTE: DO NOT REMOVE THIS NOTICE (used by redirect.php): IGLOOPORTAL LOGIN PAGE -->
   <script src="scripts/capsLock.js" type="text/javascript">//</script>
   <center>
     <form name='login' method='post'>

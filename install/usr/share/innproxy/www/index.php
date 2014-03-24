@@ -20,13 +20,19 @@
   
   $ipaddr=$CLIENTIPS.(($_SERVER['REMOTE_PORT']-1024)%256); // Calculate IP address of client
 
-  $authenticated = false;
+  $authenticated = 0;
   $reason="";
   if($submit != "") {
     $users = json_decode(file_get_contents("/var/lib/innproxy/users.json"));
     $user = preg_replace('/[^\p{L}\p{N}\s]/u', '', $user); // Replace symbols
     $pass = preg_replace('/[^\p{L}\p{N}\s]/u', '', $pass); // Replace symbols
-    if($users->$user->pass == $pass) { $authenticated=1; }
+    if($users->$user->pass == $pass) {
+			if($users->$user->disabled == true) {
+				$reason="This account is disabled.";
+				file_put_contents("/tmp/auth-".$ipaddr,0);
+			}
+			else { $authenticated=1; }
+		}
     else {
 			$reason="Invalid username or password.";
 			file_put_contents("/tmp/auth-".$ipaddr,0);
@@ -41,6 +47,7 @@
     }
     else {
 			include "redirect.php";
+			//sleep(7); header('Location: '.$redirect);
 		}
   }
 

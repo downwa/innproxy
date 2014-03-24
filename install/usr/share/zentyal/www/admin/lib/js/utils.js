@@ -65,12 +65,17 @@ function appendClone(obj,data,dsname,appendClass) {
   else { obj.parentNode.appendChild(oclone); }
 	// Fill clone with data
   var hasIP=false;
-  for(var key in data) {
+	var isDisabled=false;
+	if(data['bytes']) { data['pct']=data['bytes']*100/100000000; data['mbytes']=Math.round(data['bytes']/1000000); }
+	else { data['pct']=0; data['mbytes']=0; }
+	for(var key in data) {
 		var regex = new RegExp("\\$"+key, 'g');
 		oclone.innerHTML=oclone.innerHTML.replace(regex, data[key]);
-		if(key == "ipaddr" && data[key] != "") { hasIP=true; }
+		if(key == "ipaddr"   && data[key] != "") { hasIP=true; }
+		if(key == "disabled" && data[key] == true) { isDisabled=true; }
 	}
-	if(hasIP) { appendClass+=' hasIP'; }
+	if(hasIP)      { appendClass+=' hasIP'; }
+	if(isDisabled) { appendClass+=' isDisabled'; }
 	// Set style
 	oclone.setAttribute("data-iglooware-datasrc","CLONE-"+dsname);
 	oclone.className+=' '+appendClass;
