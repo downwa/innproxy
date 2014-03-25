@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# PURPOSE: Time out sessions which do not keep the popup window open for their session
+
+find /var/lib/innproxy/sessions/ -name 'sess-*' -mmin +1 | while read sess; do
+	user=$(cat "$sess")
+	/usr/local/bin/logoutwebuser "$user"
+	rm "$sess"
+done

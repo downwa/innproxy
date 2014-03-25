@@ -6,7 +6,7 @@
     <LINK rel="stylesheet" type="text/css" href="styles/public.css" />
   </head>
 
-  <body onload="testLogin()">
+  <body onload="testLoginx()">
     <center>
 			<br />
       <h2>Redirecting to original location</h2>
@@ -24,6 +24,7 @@
 					startTime=new Date();
 					var testlogin=document.getElementById('testlogin');
 					testlogin.src='https://reserve.bristolinn.com:447/iqreservations/asp/IQHome.asp';
+					//window.open('http://192.168.42.1:8080/status/');
 				}
 				catch(e) { alert('testLogin error: '+e.message); }
 			}

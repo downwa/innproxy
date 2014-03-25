@@ -5,7 +5,6 @@ USERS="/var/lib/innproxy/users.json"
 JQ="/usr/local/bin/jq" # Need newer version which provides 'has()' function
 
 usage() {
-	source /etc/innproxy # OVERUSE
 	# Record usage as given by firewalls
 	failsafe
 	# Initialize bytes to zero
@@ -23,9 +22,12 @@ usage() {
 }
 
 overuse() {
-	# Disable over-users
+	source /etc/innproxy # OVERUSE
+	[ "$OKAYUSE" = "" ] && OKAYUSE=$OVERUSE
+	# Disable over-users / enable under-users
 	failsafe
-	$JQ "(.[] | select(.bytes > $OVERUSE) | .disabled) = true" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	$JQ "(.[] | select(.bytes > $OVERUSE) | .disabled) = true"  <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	$JQ "(.[] | select(.bytes < $OKAYUSE) | .disabled) = false" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
 	restore "overuse"
 }
 
@@ -64,6 +66,8 @@ usagewatch() {
 	overuse
 	date +"%D %T: expired"
 	expired
+	date +"%D %T: timeouts"
+	/usr/local/bin/timeouts
 	date +"%D %T: result"
 	jq . <"$USERS"
 	chown www-data.www-data "$USERS"

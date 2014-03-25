@@ -23,6 +23,15 @@
   <body onload="document.getElementById('user').focus();">
   <!-- NOTE: DO NOT REMOVE THIS NOTICE (used by redirect.php): IGLOOPORTAL LOGIN PAGE -->
   <script src="scripts/capsLock.js" type="text/javascript">//</script>
+  <script type="text/javascript">
+		function showStatus() {
+			window.open('http://192.168.42.1:8080/status/?session=<?=$private_id?>&count=0','_blank'); // New Tab/Window
+			//var sWin=window.open('http://192.168.42.1:8080/status/?session=<?=$private_id?>','sessionPopup', // New popup window
+			//	config='height=100,width=400,toolbar=no,menubar=no,scrollbars=no,resizeable=no,location=no,directories=no,status=no');
+			focus();
+			return true;
+		}
+  </script>
   <center>
     <form name='login' method='post'>
       <div class="warning" id="capsWarning" style="display: none">
@@ -35,12 +44,16 @@
             </td>
             <td colspan="2">
                 <center><h2 style="color: #333"><?=$site_name?><br />Internet portal</h2></center>
-                <div style="color:red;font-size:8pt;">
+                <span style="color:red;font-size:8pt;">
                         Internet usage is monitored
                         and limited to 100 Mb/day.
                         Illegal activities, pornography, etc.
                         may cause account suspension.
-                </div>
+                </span>
+                <span style="color:blue;font-size:8pt;">
+                        NOTE: The status popup must remain open
+                        to validate access.
+                </span>
                 <br />
             <div class="warning" id="capsWarning" style="display: none">
                 Warning: Caps Lock is enabled
@@ -60,7 +73,7 @@
             </tr>
             <tr>
               <td></td>
-              <td><input class='inputButton' type='submit' name="submit" id='loginButton' value="Enter" /></td>
+              <td><input class='inputButton' type='submit' name="submit" id='loginButton' value="Enter" title="Login and redirect to original site" onclick="showStatus();"/></td>
             </tr>
           </table>
         </form>
