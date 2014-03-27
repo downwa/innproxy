@@ -2,6 +2,7 @@
 
   $CLIENTIPS="192.168.42.";
   $USERS="/var/lib/innproxy/users.json";
+  $FWDIR="/var/lib/innproxy/firewalls/";
 
   ini_set('display_errors',1); 
   error_reporting(E_ALL); //error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
@@ -40,28 +41,36 @@ function saveUsers($users) {
 
 function j4p_parseForm($input) {
 	global $USERS;
-	require_once(dirname(__FILE__) . "/pwgen.class.php");
 
   parse_str($input, $formData);
-  
+  $uid = $formData['uid'];
   $datetime1 = strtotime(now());
   $datetime2 = strtotime($formData['end']." 11:00 AM");
-
-  $secs = $datetime2 - $datetime1;// == <seconds between the two times>
-  $days = $secs / 86400;  
-  
-  $pwgen = new PWGen();
-  $pwgen->setNoVovels(true);
-  $password = $pwgen->generate();
-  $password = strtolower(substr($password,0,6));
-  
-  $uid = $formData['uid'];
-  
-  if($uid == "" || $secs<0) {
+	if(createUser($uid, $datetime1, $datetime2) === -1) {
     J4P::addResponse()->alert("Invalid user or date.");
     return;
   }
   
+  $users = json_decode(file_get_contents($USERS));
+  J4P::addResponse()->fillTables('users',$users);
+}
+
+/** PURPOSE: Create user active at datetime1 (zero if not active yet), expiring at datetime2 (if active)
+    NOTE: Returns -1 if specified user or dates are invalid, 0 on success.
+**/
+function createUser($uid, $datetime1, $datetime2) {
+	global $USERS;
+  $secs = $datetime2 - $datetime1;// == <seconds between the two times>
+  if($uid == "" || $secs<0) {
+    return -1;
+  }
+  
+	require_once(dirname(__FILE__) . "/pwgen.class.php");
+  $pwgen = new PWGen();
+  $pwgen->setNoVovels(true);
+  $password = $pwgen->generate();
+  $password = strtolower(substr($password,0,6));
+
 	$fh=fopen($USERS,"r");
 	if(!flock($fh, LOCK_EX)) { die("Locking failed."); }
   $users = json_decode(file_get_contents($USERS));
@@ -77,17 +86,49 @@ function j4p_parseForm($input) {
 	$users->$uid->disabled=false;
 	saveUsers($users);
 	flock($fh, LOCK_UN); fclose($fh);
-	
-  J4P::addResponse()->fillTables('users',$users);
+	return 0;
+}
+
+function createMissingDinerUsers($users) {
+	global $USERS;
+	$anyCreated=false; 
+	for($i = 1; $i <= 27; $i++) {
+		$user=sprintf("diner%02d",$i);
+		if(!isset($users->$user)) {
+			if(createUser($user,0,3600) != -1) { $anyCreated=true; }
+		}
+	}
+	if($anyCreated) { $users=json_decode(file_get_contents($USERS)); }
+	return $users;
 }
 
 function j4p_datasrc($input) {
 	global $USERS;
   parse_str($input, $formData);
-  $users = json_decode(file_get_contents($USERS));
+  $users = createMissingDinerUsers(json_decode(file_get_contents($USERS)));
   //J4P::addResponse()->document->getElementById("output2")->innerHTML = print_r($users, true);
+  $firewalls = getFirewalls();
   J4P::addResponse()->fillTables('users',$users);
+  J4P::addResponse()->fillTables('firewalls',$firewalls);
   J4P::addResponse()->eval("setTimeout('data()',5000);");
+}
+
+function getFirewalls() {
+	global $FWDIR;
+
+	$fwalls=new stdClass();
+	if (is_dir($FWDIR)){
+		if ($dh = opendir($FWDIR)){
+			while (($file = readdir($dh)) !== false){
+				if($file == "." || $file == "..") { continue; }
+				$fwalls->$file=new stdClass();
+				$fwalls->$file->macaddr=$file;
+				$fwalls->$file->ipaddr=file_get_contents($FWDIR."/".$file);
+			}
+			closedir($dh);
+		}
+	}
+	return $fwalls;
 }
 
 function j4p_able($input) {

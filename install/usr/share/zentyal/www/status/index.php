@@ -45,6 +45,8 @@
 				$userinfo=$users->$user;
 				//echo json_encode($userinfo);
 				if($userinfo->ipaddr == $ipaddr || $userinfo->ipaddr == "") {
+					$active=$userinfo->active;
+					$stay=$userinfo->stay;
 					$leave=$userinfo->leave;
 					$disabled=$userinfo->disabled?"Yes":"No";
 					$bytes=$userinfo->bytes;
@@ -52,7 +54,10 @@
 					$mbytes=round($bytes/1000000);
 					
 					$datetime1 = strtotime(now());
-					$datetime2 = strtotime($leave." 11:00 AM");
+					$dt2=strtotime($leave." 11:00 AM");
+					$datetime2 = $active+$stay; 
+					if($dt2 < $datetime2) { $leave=""; }
+					else { $leave=$leave." at 11 am"; }
 					$secsleft = ($datetime2 - $datetime1);
 					if($secsleft > 0) {
 						$hh = floor($secsleft / 3600);
@@ -147,7 +152,7 @@
           <b>Expiry</b>
         </div>
         <div class="meter">
-          <b>&nbsp;<?=$leave?> at 11 am <span style="font-size:9pt;">(<?=$hhmmss?> left)</span></b> 
+          <b>&nbsp;<?=$leave?><span style="font-size:9pt;">(<?=$hhmmss?> left)</span></b> 
         </div>
       </div>
       

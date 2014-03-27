@@ -23,6 +23,19 @@ function data(divName) {
   run('datasrc',{question:'universe', answer: 43});
 }
 
+function filterObject(fun, obj) {
+		var len = this.length;
+		if (typeof fun != "function") { throw new TypeError(); }
+		var res = new Object();
+		var thisp = arguments[1];
+
+		for (prop in obj) {
+			var val = obj[prop]; // in case fun mutates this
+			if (fun.call(thisp, val, prop, obj)) { res[prop]=val; }
+		}		
+		return res;
+
+}
 
 function fillTables(dsname, data) {  
   try {
@@ -40,10 +53,26 @@ function fillTables(dsname, data) {
   catch(e) { alert('fillTable: '+e.message); }
 }
 
+function categoryMatches(element, index, array) { return (index.startsWith('diner')); }
+function categoryNotMatches(element, index, array) { return !(index.startsWith('diner')); }
 function fillTable(obj,data,dsname) {
   try {
     obj.style.display='none';
     if(data==null) { return; }
+    
+    if(dsname == 'users') {
+			if(document.location.hash == '#diner') {
+				data=filterObject(categoryMatches,data);
+				var userCreateForm=document.getElementById('userCreateForm');
+				userCreateForm.style.display='none';
+			}
+			else {
+				data=filterObject(categoryNotMatches,data);
+				var userCreateForm=document.getElementById('userCreateForm');
+				userCreateForm.style.display='';
+			}
+		}
+    
     var printClasses=obj.getAttribute("data-iglooware-printclasses").split(",");
     var sortedKeys=keys(data).sort().reverse(); // ["a", "b", "z"]
     var clsidx=(sortedKeys.length%COLUMNS)-1; // Start at end since we build in reverse

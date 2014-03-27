@@ -29,7 +29,25 @@ usage() {
 expired() {
 	# Remove expired users
 	now=$(date +%s)
-	jqp=".[] | {(.user):select($now - .active <= .stay)}"	# Select only users whose remaining time is less than stay
+	# Select only users whose remaining time is less than stay, or who are not active yet (e.g. diner users)
+	jqp=".[] | {(.user):select(($now - .active <= .stay) or (.active == 0))}"
+	s1='s/^{//g'		# Remove open {
+	s2='s/}$/,/g'		# Replace } with ,
+	s3='$ s/},$/}/g'	# Except no , on last line 
+	(
+		flock -x 0
+		failsafe
+		( echo "{"; jq -c "$jqp" <$USERS | sed -e "$s1" -e "$s2" -e "$s3"; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+		chown www-data.www-data "$USERS"
+		restore "expired"
+	) <"$USERS"
+}
+
+activate() {
+	# Activate users who have just logged in but were not active yet
+	now=$(date +%s)
+	# Only modify users who have an IP address but whose active date is zero
+	jqp="(.[] | {(.user):select(.ipaddr != \"\" and .active == 0)} | .active) = $now"
 	s1='s/^{//g'		# Remove open {
 	s2='s/}$/,/g'		# Replace } with ,
 	s3='$ s/},$/}/g'	# Except no , on last line 
@@ -61,8 +79,8 @@ restore() {
 usagewatch() {
 	date +"%D %T: usage"
 	usage
-#	date +"%D %T: overuse"
-#	overuse
+	date +"%D %T: activate"
+	activate
 	date +"%D %T: expired"
 	expired
 	date +"%D %T: timeouts"

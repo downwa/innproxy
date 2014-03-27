@@ -1,5 +1,11 @@
 #!/bin/bash
 # PURPOSE: List user ids of users that are active, under usage limit, and logged in (all others should be blocked by firewalls)
+# ALSO record mac and IP addresses passed by caller, as active firewall nodes.
+
+fwmac=$1
+fwip=$2
+fwmac=$(echo "$fwmac" | sed -e 's/:/-/g') # In case of picky filesystems
+echo "$fwip" >"/var/lib/innproxy/firewalls/$fwmac"
 
 JQ=/usr/local/bin/jq
 USERS=/var/lib/innproxy/users.json
