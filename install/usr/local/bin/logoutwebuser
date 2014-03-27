@@ -6,5 +6,8 @@ USERS="/var/lib/innproxy/users.json"
 JQ="/usr/local/bin/jq"
 
 jqp="if has(\"$user\") then .[\"$user\"].ipaddr=\"\" else . end | if has(\"$user\") then .[\"$user\"].macaddr=\"\" else . end";
-$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-chown www-data.www-data "$USERS"
+(
+	flock -x 0
+	$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	chown www-data.www-data "$USERS"
+) <"$USERS"

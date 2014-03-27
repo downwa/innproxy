@@ -1,1 +1,0 @@
-Use of uninitialized value $userExists in numeric eq (==) at /usr/share/perl5/EBox/Users/User.pm line 518, line 16. Use of uninitialized value $groupExists in numeric eq (==) at /usr/share/perl5/EBox/Users/User.pm line 526, line 16. ADD uid=1,seconds=86400 DEL: 1 SISLIT 1383761866 86400 

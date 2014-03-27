@@ -1,4 +1,0 @@
-#!/bin/bash
-
-/home/administrator/scripts/usages.pl | /home/administrator/scripts/normleave >/tmp/usages.csv.tmp$$
-mv /tmp/usages.csv.tmp$$ /tmp/usages.csv

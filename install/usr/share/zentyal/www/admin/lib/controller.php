@@ -53,7 +53,7 @@ function j4p_parseForm($input) {
   $pwgen = new PWGen();
   $pwgen->setNoVovels(true);
   $password = $pwgen->generate();
-  $password = strtoupper(substr($password,0,6));
+  $password = strtolower(substr($password,0,6));
   
   $uid = $formData['uid'];
   
@@ -62,6 +62,8 @@ function j4p_parseForm($input) {
     return;
   }
   
+	$fh=fopen($USERS,"r");
+	if(!flock($fh, LOCK_EX)) { die("Locking failed."); }
   $users = json_decode(file_get_contents($USERS));
 	$users->$uid=new stdClass();
 	$users->$uid->user=$uid;
@@ -74,6 +76,7 @@ function j4p_parseForm($input) {
 	$users->$uid->bytes=0;
 	$users->$uid->disabled=false;
 	saveUsers($users);
+	flock($fh, LOCK_UN); fclose($fh);
 	
   J4P::addResponse()->fillTables('users',$users);
 }
@@ -96,9 +99,12 @@ function j4p_able($input) {
     return;
   }
   
+	$fh=fopen($USERS,"r");
+	if(!flock($fh, LOCK_EX)) { die("Locking failed."); }
   $users = json_decode(file_get_contents($USERS));
   $users->$uid->disabled=!$users->$uid->disabled;
 	saveUsers($users);
+	flock($fh, LOCK_UN); fclose($fh);
 	
   J4P::addResponse()->fillTables('users',$users);
 }

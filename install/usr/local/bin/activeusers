@@ -1,7 +1,10 @@
-#!/bin/sh
-# PURPOSE: List user ids of users that are active and logged in (all others should be blocked by firewalls)
+#!/bin/bash
+# PURPOSE: List user ids of users that are active, under usage limit, and logged in (all others should be blocked by firewalls)
 
 JQ=/usr/local/bin/jq
 USERS=/var/lib/innproxy/users.json
 
-$JQ '.[] | select(.disabled != true and has("ipaddr") and .ipaddr != "") | .user' <"$USERS" | cut -d '"' -f 2
+source /etc/innproxy # OVERUSE
+
+jqp=".[] | select(.disabled != true and .bytes < $OVERUSE and has(\"ipaddr\") and .ipaddr != \"\") | .user"
+$JQ "$jqp" <"$USERS" | cut -d '"' -f 2

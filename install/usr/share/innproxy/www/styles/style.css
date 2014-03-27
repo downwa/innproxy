@@ -27,8 +27,7 @@
         #uid        { width:86pt; }
         #datepicker { width:80pt; }
         .hasIP      { background-color: #def; }
-        .isOver     { background-color: #900; color: #eee; }
-        .isDisabled { background-color: #750; color: #fed; }
+        .isDisabled { background-color: #700; color: #fed; }
         .meter { 
 					float: left;
 					height: 20px;  /* Can be anything */

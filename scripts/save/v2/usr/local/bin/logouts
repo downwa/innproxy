@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# LOGOUT timed-out/over-limit account access via iptables (in case of captiveportal failure to do so)
-
-cat /tmp/cleanup_uids.txt | sort | uniq | while read uid; do
-	logout "$uid"
-done

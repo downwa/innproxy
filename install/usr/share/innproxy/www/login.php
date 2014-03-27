@@ -2,36 +2,37 @@
   <head><title><?=$site_name?> Internet portal</title>
     <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE" />
     <LINK rel="stylesheet" type="text/css" href="styles/public.css" />
-  <script type="text/javascript"><!--
-    function resize() {
-        var innerWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        var innerHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-        var targetWidth = 700;
-        var targetHeight = 480;
-        var xAdjust=targetWidth-innerWidth;
-        if(xAdjust < 0) { xAdjust=0; }
-        var yAdjust=targetHeight-innerHeight;
-        if(yAdjust < 0) { yAdjust=0; }
-        if(xAdjust > 0 || yAdjust > 0) { window.resizeBy(xAdjust, yAdjust); }
-    }
-    try { resize(); }
-    catch(e) {}
-    //-->
-  </script>
+		<script src="scripts/capsLock.js" type="text/javascript">//</script>
+		<script src="scripts/jquery-1.9.1.min.js" type="text/javascript">//</script>
+		<script type="text/javascript"><!--
+			var passChecked=false;
+			function doRedirect() {
+				//alert(passChecked);
+				if(passChecked) {
+					window.open('https://reserve.bristolinn.com:447/redirect.php?redirect=<?=$redirect?>','_blank'); // New Tab/Window
+				}
+				return true;
+			}
+			function checkPass() {
+				try {
+					var userField=document.getElementById('user');
+					var passField=document.getElementById('pass');
+					var user=userField.value;
+					var pass=passField.value;
+					var url="https://reserve.bristolinn.com:447/?doauth=1&user="+user+"&pass="+pass+"&submit=true";
+					if (typeof $ !== 'undefined') {
+						passChecked=($.ajax({type: "GET", url: url, async: false}).responseText) == 1;
+					}
+					else { passChecked=true; }
+				}
+				catch(e) { alert('checkPass: '+e.message); }
+			}
+			//-->
+		</script>
   </head>
   
   <body onload="document.getElementById('user').focus();">
   <!-- NOTE: DO NOT REMOVE THIS NOTICE (used by redirect.php): IGLOOPORTAL LOGIN PAGE -->
-  <script src="scripts/capsLock.js" type="text/javascript">//</script>
-  <script type="text/javascript">
-		function showStatus() {
-			window.open('http://192.168.42.1:8080/status/?session=<?=$private_id?>&count=0','_blank'); // New Tab/Window
-			//var sWin=window.open('http://192.168.42.1:8080/status/?session=<?=$private_id?>','sessionPopup', // New popup window
-			//	config='height=100,width=400,toolbar=no,menubar=no,scrollbars=no,resizeable=no,location=no,directories=no,status=no');
-			focus();
-			return true;
-		}
-  </script>
   <center>
     <form name='login' method='post'>
       <div class="warning" id="capsWarning" style="display: none">
@@ -46,13 +47,15 @@
                 <center><h2 style="color: #333"><?=$site_name?><br />Internet portal</h2></center>
                 <span style="color:red;font-size:8pt;">
                         Internet usage is monitored
-                        and limited to 100 Mb/day.
+                        and limited to <?=$mblimit?> Mb/day.
                         Illegal activities, pornography, etc.
                         may cause account suspension.
                 </span>
                 <span style="color:blue;font-size:8pt;">
-                        NOTE: The status popup must remain open
-                        to validate access.
+                        NOTE: The status window must remain open
+                        to validate access.  Click <a href="http://192.168.42.1:8080/status/?session=<?=$private_id?>&count=0" target="_blank">here</a>
+                        to display the status in a new tab
+                        or window.
                 </span>
                 <br />
             <div class="warning" id="capsWarning" style="display: none">
@@ -64,16 +67,16 @@
             </tr>
             <tr>
               <td class="labeltd">Username</td>
-              <td><input class='inputTextLogin' type='text' name='user' id='user' value="<?=$user?>" /></td>
+              <td><input class='inputTextLogin' type='text' name='user' id='user' value="<?=$user?>" onblur="checkPass();" /></td>
             </tr>
             <tr>
               <td class="labeltd">Password</td>
-              <td><input class='inputTextLogin' type='password' name='pass' id='pass' value="<?=$pass?>" /></td>
+              <td><input class='inputTextLogin' type='password' name='pass' id='pass' value="<?=$pass?>" onblur="checkPass();" /></td>
                   <input type="hidden" name="redirect" value="<?=$redirect?>" />
             </tr>
             <tr>
               <td></td>
-              <td><input class='inputButton' type='submit' name="submit" id='loginButton' value="Enter" title="Login and redirect to original site" onclick="showStatus();"/></td>
+              <td><input class='inputButton' type='submit' name="submit" id='loginButton' value="Enter" title="Login and redirect to original site" onclick="doRedirect();"/></td>
             </tr>
           </table>
         </form>

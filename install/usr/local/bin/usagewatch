@@ -5,42 +5,41 @@ USERS="/var/lib/innproxy/users.json"
 JQ="/usr/local/bin/jq" # Need newer version which provides 'has()' function
 
 usage() {
-	# Record usage as given by firewalls
-	failsafe
-	# Initialize bytes to zero
-	$JQ "(.[] | .bytes) = 0" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-	# Set bytes to actual usage since checkout
-	OLDIFS=$IFS
-	IFS=,
-	cat "$USAGES"*.csv | awk -F, '{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }' | while read bytes user; do
-		bytes=$(echo "$bytes" | awk '{print $1}')
-		jqp="if has(\"$user\") then .[\"$user\"].bytes=$bytes else . end"
-		$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-	done
-	IFS=$OLDIFS
-	restore "usage"
+	(
+		flock -x 0
+		# Record usage as given by firewalls
+		failsafe
+		# Initialize bytes to zero
+		$JQ "(.[] | .bytes) = 0" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+		# Set bytes to actual usage since checkout
+		OLDIFS=$IFS
+		IFS=,
+		cat "$USAGES"*.csv | awk -F, '{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }' | while read bytes user; do
+			bytes=$(echo "$bytes" | awk '{print $1}')
+			jqp="if has(\"$user\") then .[\"$user\"].bytes=$bytes else . end"
+			$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+		done
+		IFS=$OLDIFS
+		chown www-data.www-data "$USERS"
+		restore "usage"
+	) <"$USERS"
 }
 
-overuse() {
-	source /etc/innproxy # OVERUSE
-	[ "$OKAYUSE" = "" ] && OKAYUSE=$OVERUSE
-	# Disable over-users / enable under-users
-	failsafe
-	$JQ "(.[] | select(.bytes > $OVERUSE) | .disabled) = true"  <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-	$JQ "(.[] | select(.bytes < $OKAYUSE) | .disabled) = false" <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-	restore "overuse"
-}
-
+# $JQ "(.[] | select(.bytes > $OVERUSE) | .disabled) = true"  <$USERS >"$USERS.$$" && mv "$USERS.$$" "$USERS"
 expired() {
 	# Remove expired users
-	failsafe
 	now=$(date +%s)
 	jqp=".[] | {(.user):select($now - .active <= .stay)}"	# Select only users whose remaining time is less than stay
 	s1='s/^{//g'		# Remove open {
 	s2='s/}$/,/g'		# Replace } with ,
 	s3='$ s/},$/}/g'	# Except no , on last line 
-	( echo "{"; jq -c "$jqp" <$USERS | sed -e "$s1" -e "$s2" -e "$s3"; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
-	restore "expired"
+	(
+		flock -x 0
+		failsafe
+		( echo "{"; jq -c "$jqp" <$USERS | sed -e "$s1" -e "$s2" -e "$s3"; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+		chown www-data.www-data "$USERS"
+		restore "expired"
+	) <"$USERS"
 }
 
 failsafe() {
@@ -62,15 +61,14 @@ restore() {
 usagewatch() {
 	date +"%D %T: usage"
 	usage
-	date +"%D %T: overuse"
-	overuse
+#	date +"%D %T: overuse"
+#	overuse
 	date +"%D %T: expired"
 	expired
 	date +"%D %T: timeouts"
 	/usr/local/bin/timeouts
 	date +"%D %T: result"
 	jq . <"$USERS"
-	chown www-data.www-data "$USERS"
 }
 
 while [ true ]; do

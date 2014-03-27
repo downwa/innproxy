@@ -1,19 +1,25 @@
+<?php
+  global $site_name,$redirect,$private_id;
+
+  $site_name="Bristol Inn";
+
+  ini_set('display_errors',1); 
+  error_reporting(E_ALL); //error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+
+  include "sessions.php";
+  header("Connection: close");
+
+  /** HANDLE INPUTS **/
+  $redirect=input("redirect");
+?>
 <html>
   <head><title>Welcome to <?=$site_name?></title>
     <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
     <!-- NOTE: not using meta refresh since browser seems to keep alive connection to router instead of real target -->
     <!-- meta http-equiv="refresh" content="5; url=<?=$redirect?>" -->
     <LINK rel="stylesheet" type="text/css" href="styles/public.css" />
-  </head>
-
-  <body onload="testLoginx()">
-    <center>
-			<br />
-      <h2>Redirecting to original location</h2>
-      If browser does not redirect after <span id="sec">15</span> seconds, click:<br /><br />
-      &nbsp;&nbsp;<a href="<?=$redirect?>"><?=$redirect?></a>
-    </center>
-    <script>
+    <script type="text/javascript"><!-- 
+			var statusTarget='http://192.168.42.1:8080/status/?session=<?=$private_id?>&count=0&redirect=<?=$redirect?>';
 			var redirect='<?=$redirect?>';
 			var loggedIn=false;
 			var frame2Ready=false;
@@ -44,7 +50,7 @@
 					updateDisplay();
 					var testlogin=document.getElementById('testlogin2');
 					testlogin.src=redirect;
-					if(frame2Ready || tries>1) { document.location=redirect; }
+					if(frame2Ready || tries>1) { document.location=redirect; } //document.location=statusTarget; }
 					tries++;
 					setTimeout("frameSetup2()",5000);
 				}
@@ -54,7 +60,7 @@
 				if(!loggedIn) { return; }
 				updateDisplay();
 				frame2Ready=true;
-				try { document.location=redirect; } // Redirect to external page
+				try { document.location=redirect; } //document.location=statusTarget; } // Redirect to external page
 				catch(e) { alert('frameReady2 error: '+e.message); }
 			}
 			function updateDisplay() {
@@ -69,7 +75,17 @@
 				}
 				catch(e) { alert('updateDisplay error: '+e.message); }
 			}
+			//-->
     </script>
+  </head>
+
+  <body>
+    <center>
+			<br />
+      <h2>Redirecting to original location</h2>
+      If browser does not redirect after <span id="sec">15</span> seconds, click:<br /><br />
+      &nbsp;&nbsp;<a href="<?=$redirect?>" target="_blank"><?=$redirect?></a>
+    </center>
     <iframe id="testlogin" src="https://reserve.bristolinn.com:447/iqreservations/asp/IQHome.asp" onload="frameReady(this);" width="0" height="0" style="display:none">
     </iframe>
     <iframe id="testlogin2" onload="frameReady2(this);" width="0" height="0" style="display:none">

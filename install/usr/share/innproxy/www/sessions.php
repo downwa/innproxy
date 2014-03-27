@@ -46,4 +46,16 @@ function input($key) {
   return $value;
 }
 
+function setGlobalIni() {
+	# /etc/default/innproxy
+	# /etc/innproxy
+	$ini_array  = @parse_ini_file("/etc/default/innproxy"); // Avoid # deprecated warning
+	$ini_array1 = @parse_ini_file("/etc/innproxy"); // Avoid # deprecated warning
+	foreach($ini_array1 as $key => $val) { $ini_array[$key]=$val; }
+	foreach($ini_array as $key => $val) {
+		$GLOBALS["innproxy_".$key]=$val;
+	}
+  //print_r($GLOBALS);
+}
+
 ?>

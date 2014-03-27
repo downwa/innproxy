@@ -23,8 +23,11 @@ else
 	response="TRUE $user"
 	user=$(echo "$user" | cut -d "'" -f 2)
 	jqp=".[\"$user\"].ipaddr=\"$ip\" | .[\"$user\"].macaddr=\"$mac\""
-	jq "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	(
+		flock -x 0
+		jq "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+		chown www-data.www-data "$USERS"
+	) <"$USERS"
 	echo "$response" # Sent after jq logs user in to avoid race condition
 fi
 mv "$sfile" "$sfile.done"
-chown www-data.www-data "$USERS"

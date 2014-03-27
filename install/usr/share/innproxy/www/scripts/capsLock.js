@@ -122,3 +122,4 @@ function toggleWarning() {
    }
 }
 )(capslock.init);
+

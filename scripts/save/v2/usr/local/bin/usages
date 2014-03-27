@@ -1,4 +1,0 @@
-#!/bin/sh
-
-usages.pl | normleave >/tmp/usages.csv.tmp$$
-mv /tmp/usages.csv.tmp$$ /tmp/usages.csv

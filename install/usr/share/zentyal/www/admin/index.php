@@ -29,7 +29,7 @@
         <div class="join col">User</div>
         <div class="join col">Password</div>
         <div class="join col buttons">Expiry</div>
-        <div class="joinmeter col">Today's Usage (100Mb max)</div>
+        <div class="joinmeter col">Today's Usage (100 Mb max)</div>
       </div>
       <br />
 
@@ -44,7 +44,7 @@
           <span class="small" title="mac:$macaddr ip:$ipaddr bytes:$bytes">$leave</span>
         </div>
         <div class="meter">
-					<span style="width: $pct%" title="$mbytes Mb">$mbytes Mb</span>
+					<span style="width: $pct%;white-space: nowrap;overflow:visible;" title="$mbytes Mb">&nbsp;$mbytes Mb</span>
         </div>
       </div>
     </div>
