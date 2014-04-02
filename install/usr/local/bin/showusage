@@ -5,4 +5,7 @@ user=$1
 
 USERS="/var/lib/innproxy/users/"
 
-find "$USERS" -name 'usehr-*.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
+find "$USERS" -name 'usehr-1[1-9].csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
+find "$USERS" -name 'usehr-2*.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
+find "$USERS" -name 'usehr-0*.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
+find "$USERS" -name 'usehr-10.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
