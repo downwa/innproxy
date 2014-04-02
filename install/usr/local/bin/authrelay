@@ -1,0 +1,12 @@
+#!/bin/bash
+
+SESSIONS="/var/lib/innproxy/sessions/"
+
+server=$1
+[ "$server" = "" ] && echo "Missing firewall server" 1>&2 && exit 1
+LOG="/tmp/authrelay.err.$server"
+
+inotifywait -m -e close_write -e delete --format "%w:%&e:%f" "$SESSIONS" 2>"$LOG" | while IFS=':' read dir event file; do
+	user=$(cat "$dir/$file" 2>/dev/null);
+	echo "${file:5} $user";
+done

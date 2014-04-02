@@ -1,0 +1,8 @@
+#!/bin/sh
+
+user=$1
+#[ "$user" = "" ] && echo "Missing user name" 1>&2 && exit 1
+
+USERS="/var/lib/innproxy/users/"
+
+find "$USERS" -name 'usehr-*.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort

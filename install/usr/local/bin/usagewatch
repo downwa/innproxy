@@ -14,7 +14,8 @@ usage() {
 		# Set bytes to actual usage since checkout
 		OLDIFS=$IFS
 		IFS=,
-		cat "$USAGES"*.csv | awk -F, '{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }' | while read bytes user; do
+		awkp='{t[$2]+=$1} END {for (i in t) {printf "%10d,%s\n",t[i],i} }'
+		find "$USAGES" -name '*usage.csv' -exec cat {} \; | awk -F, "$awkp" | while read bytes user; do
 			bytes=$(echo "$bytes" | awk '{print $1}')
 			jqp="if has(\"$user\") then .[\"$user\"].bytes=$bytes else . end"
 			$JQ "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
@@ -56,7 +57,7 @@ activate() {
 		failsafe
 		( echo "{"; jq -c "$jqp" <$USERS | sed -e "$s1" -e "$s2" -e "$s3"; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
 		chown www-data.www-data "$USERS"
-		restore "expired"
+		restore "activate"
 	) <"$USERS"
 }
 

@@ -57,7 +57,7 @@
 					$dt2=strtotime($leave." 11:00 AM");
 					$datetime2 = $active+$stay; 
 					if($dt2 < $datetime2) { $leave=""; }
-					else { $leave=$leave." at 11 am"; }
+					else { $leave=$leave." at 11 am "; }
 					$secsleft = ($datetime2 - $datetime1);
 					if($secsleft > 0) {
 						$hh = floor($secsleft / 3600);
@@ -73,6 +73,7 @@
 				if($loggedin == "Yes") { touch($SESSIONS."/sess-".$session); } // Keep this session alive, if it is logged in
 			}
 			else { // logout is non-blank
+				unlink($SESSIONS."/sess-".$session);
 				$users->$user->ipaddr = $users->$user->macaddr = "";
 				if(@file_put_contents($USERS.".tmp", json_encode($users)) === FALSE) {
 					J4P::addResponse()->alert('1:Unable to save user.');
@@ -82,6 +83,9 @@
 						J4P::addResponse()->alert('2:Unable to save user.');
 					}
 				}
+				sleep(3);
+				header("Location: https://reserve.bristolinn.com:447/?redirect=http://google.com");
+				return;
 			}
 		}
 		flock($fh, LOCK_UN); fclose($fh);
@@ -92,7 +96,7 @@
 <html>
   <head><title>Session Status</title>
     <meta HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE" />
-		<meta http-equiv="refresh" content="30; url=/status/?session=<?=$session?>&count=<?=$count?>&redirect=<?=$redirect?>" />
+		<!-- meta http-equiv="refresh" content="30; url=/status/index.php?session=<?=$session?>&count=<?=$count?>&redirect=<?=$redirect?>" / -->
 		<LINK rel="stylesheet" type="text/css" href="styles/style.css" />
 		<script type="text/javascript">
 			var logout='<?=$logout?>';
@@ -113,7 +117,7 @@
                         checkout time (11 am).
     </div>
 <?php if($redirect != "") { ?>    
-    <a href="<?=$redirect?>" target="_blank" title="<?=$redirect?>">Visit original site</a>
+    <a href="<?=$redirect?>" target="_blank" title="<?=$redirect?>" target="_top">Visit original site</a>
     <br />
 <?php } ?>    
     
@@ -180,11 +184,10 @@
 		<div clas="base box">
 			<div class="join">
 <?php if($loggedin == "Yes") { ?>    
-				<a href="/status/?logout=true&session=<?=$session?>&count=<?=$count?>&redirect=<?=$redirect?>" title="Logout session">&nbsp;Logout&nbsp;</a>
+				<a href="/status/index.php?logout=true&session=<?=$session?>&count=<?=$count?>&redirect=<?=$redirect?>" target="_top" title="Logout session">&nbsp;Logout&nbsp;</a>
 				<br />
 <?php } ?>    
 			</div>
 		</div>
-
 	</body>
 </html>

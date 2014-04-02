@@ -1,13 +1,13 @@
 #!/bin/sh
 
 # PURPOSE: Time out sessions which do not keep the popup window open for their session
-# ALSO Time out firewalls which have not responded within two minutes
+# ALSO Time out firewalls which have not responded recently
 
-find /var/lib/innproxy/sessions/ -name 'sess-*' -mmin +1 | while read sess; do
+find /var/lib/innproxy/sessions/ -name 'sess-*' -mmin +5 | while read sess; do
 	user=$(cat "$sess")
 	/usr/local/bin/logoutwebuser "$user"
 	rm "$sess"
 done
 
-# Time out firewalls
-find /var/lib/innproxy/firewalls/ -type f -mmin +2 -exec rm -fv {} \;
+# Time out active firewalls list
+find /var/lib/innproxy/firewalls/ -type f -mmin +5 -exec rm -fv {} \;

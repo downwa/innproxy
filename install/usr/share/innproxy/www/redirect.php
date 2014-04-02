@@ -19,7 +19,6 @@
     <!-- meta http-equiv="refresh" content="5; url=<?=$redirect?>" -->
     <LINK rel="stylesheet" type="text/css" href="styles/public.css" />
     <script type="text/javascript"><!-- 
-			var statusTarget='http://192.168.42.1:8080/status/?session=<?=$private_id?>&count=0&redirect=<?=$redirect?>';
 			var redirect='<?=$redirect?>';
 			var loggedIn=false;
 			var frame2Ready=false;
@@ -50,7 +49,7 @@
 					updateDisplay();
 					var testlogin=document.getElementById('testlogin2');
 					testlogin.src=redirect;
-					if(frame2Ready || tries>1) { document.location=redirect; } //document.location=statusTarget; }
+					if(frame2Ready || tries>1) { document.location=redirect; } // Redirect to external page
 					tries++;
 					setTimeout("frameSetup2()",5000);
 				}
@@ -60,7 +59,7 @@
 				if(!loggedIn) { return; }
 				updateDisplay();
 				frame2Ready=true;
-				try { document.location=redirect; } //document.location=statusTarget; } // Redirect to external page
+				try { document.location=redirect; } // Redirect to external page
 				catch(e) { alert('frameReady2 error: '+e.message); }
 			}
 			function updateDisplay() {
@@ -89,6 +88,7 @@
     <iframe id="testlogin" src="https://reserve.bristolinn.com:447/iqreservations/asp/IQHome.asp" onload="frameReady(this);" width="0" height="0" style="display:none">
     </iframe>
     <iframe id="testlogin2" onload="frameReady2(this);" width="0" height="0" style="display:none">
+			<a href="<?=$redirect?>">Click to proceed to original destination</a>
     </iframe>
   </body>
 </html>

@@ -53,14 +53,14 @@
                 </span>
                 <span style="color:blue;font-size:8pt;">
                         NOTE: The status window must remain open
-                        to validate access.  Click <a href="http://192.168.42.1:8080/status/?session=<?=$private_id?>&count=0" target="_blank">here</a>
+                        to validate access.  Click <a href="https://reserve.bristolinn.com:8444/status/index.php?session=<?=$private_id?>&count=0" target="_blank">here</a>
                         to display the status in a new tab
                         or window.
                 </span>
                 <br />
-            <div class="warning" id="capsWarning" style="display: none">
+            <!-- div class="warning" id="capsWarning" style="display: none">
                 Warning: Caps Lock is enabled
-            </div>
+            </div-->
 <?php       if(strlen($reason) > 0) { ?>
               <div id='reason' class="warning"><?=$reason?></div>
 <?php       } ?>
@@ -71,14 +71,16 @@
             </tr>
             <tr>
               <td class="labeltd">Password</td>
-              <td><input class='inputTextLogin' type='password' name='pass' id='pass' value="<?=$pass?>" onblur="checkPass();" /></td>
-                  <input type="hidden" name="redirect" value="<?=$redirect?>" />
+              <td><input class='inputTextLogin' type='password' name='pass' id='pass' value="<?=$pass?>" onblur="checkPass();" />
+								(Not case sensitive)
+              </td>
             </tr>
             <tr>
               <td></td>
               <td><input class='inputButton' type='submit' name="submit" id='loginButton' value="Enter" title="Login and redirect to original site" onclick="doRedirect();"/></td>
             </tr>
           </table>
+          <input type="hidden" name="redirect" value="<?=$redirect?>" />
         </form>
       </div>
     </center>

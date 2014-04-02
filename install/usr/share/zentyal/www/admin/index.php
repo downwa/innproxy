@@ -18,10 +18,10 @@
     </form>
     
     <div class="base title">WiFi Access Codes</div>
-    <h4><a href="#" onclick="window.print();return false;">Print</a></h4>
-    <h4><a href="logout.html">Logout</a></h4>
+    <h4><a href="#" onclick="window.print();return false;" class="button">Print</a></h4>
+    <h4><a href="logout.html" class="button">Logout</a></h4>
     <div class="main">
-      <!-- h3>NOTE: Click on +/- and the Date at which the code should terminate.</h3 -->
+      <h3>NOTE: Passwords are no longer case-sensitive.</h3>
 
       <div class="base lft box rowhead" style="text-decoration:underline" >
         <div class="join col">User</div>
@@ -33,7 +33,7 @@
 
       <div class="base box" data-iglooware-printclasses="lft,mid,rht" data-iglooware-datasrc="users" style="display:none">
         <div class="join">
-          <span class="print">&nbsp;&nbsp;User: </span><a href="#" onclick="run('able',{user:'$user'}); return false;" title="Enable/Disable account"><b>$user</b></a>
+          <span class="print">&nbsp;&nbsp;User: </span><a href="#" onclick="run('able',{user:'$user'}); return false;" title="Enable/Disable account" class="button"><b>$user</b></a>
         </div>
         <div class="join">
           <span class="print">Pass: </span><b>$pass</b>
@@ -42,7 +42,7 @@
           <span class="small" title="mac:$macaddr ip:$ipaddr bytes:$bytes">$leave</span>
         </div>
         <div class="meter">
-					<span style="width: $pct%;white-space: nowrap;overflow:visible;" title="$mbytes Mb">&nbsp;$mbytes Mb</span>
+					<span style="width: $pct%;white-space: nowrap;overflow:visible;" title="$mbytes Mb"><a href="usage.php?user=$user" target="_blank">&nbsp;$mbytes Mb</a></span>
         </div>
       </div>
 
@@ -61,7 +61,7 @@
         <div class="join">
           <span class="small">$macaddr</span>
         </div>
-        <div class="join">
+        <div class="join iphost">
           <span class="small">$ipaddr</span>
         </div>
       </div>

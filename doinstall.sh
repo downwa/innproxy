@@ -20,8 +20,8 @@ done
 
 fi
 
-# Install PHP and additional utilities (binutils for strings)
-apt-get install php5-fpm libapache2-mod-php5 mlocate binutils realpath bc
+# Install PHP and additional utilities (binutils for strings, bind9-host for host)
+apt-get install php5-fpm libapache2-mod-php5 mlocate binutils realpath bc bind9-host
 
 # Restart servers
 /etc/init.d/php5-fpm restart

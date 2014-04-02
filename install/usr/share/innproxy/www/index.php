@@ -31,16 +31,14 @@
     $users = json_decode(file_get_contents("/var/lib/innproxy/users.json"));
     $user = preg_replace('/[^\p{L}\p{N}\s]/u', '', $user); // Replace symbols
     $pass = preg_replace('/[^\p{L}\p{N}\s]/u', '', $pass); // Replace symbols
-    if(isset($users->$user) && $users->$user->pass == $pass) {
+    if(isset($users->$user) && strtoupper($users->$user->pass) == strtoupper($pass)) {
 			$bytes=$users->$user->bytes;
 			$pct=round($bytes*100/$overuse);
 			if($users->$user->disabled == true) {
 				$reason="This account is disabled.";
-				file_put_contents("/tmp/auth-".$ipaddr,0);
 			}
 			else if($pct > 100) {
 				$reason="Daily usage exceeds limit.<br />Wait until 11 am to try again.";
-				file_put_contents("/tmp/auth-".$ipaddr,0);
 			}
 			else {
 				$authenticated=1;
@@ -49,7 +47,6 @@
 		}
     else {
 			$reason="Invalid username or password.";
-			file_put_contents("/tmp/auth-".$ipaddr,0);
 		}
   }
   if($doauth == 1) {
@@ -59,17 +56,10 @@
   if($authenticated != 1) {
 		$usersjson=file_get_contents("/var/lib/innproxy/users.json");
     include "login.php";
-    //echo "<!--"; print_r($_SERVER); echo "-->";
   } else {
-    if(file_put_contents("/tmp/auth-".$ipaddr,date_timestamp_get(date_create())." ".escapeshellarg($user)) === FALSE) {
-			echo "Server authentication error.";
-    }
-    else {
-			header("Location: http://192.168.42.1:8080/status/?session=$private_id&count=0&redirect=$redirect");
-			//header("Location: http://192.168.42.1:8080/status/?session=redirect=".$redirect);
-			//header("Location: http://192.168.42.1:8080/status/redirect.php?redirect=".$redirect);
-			//include "redirect.php";
-		}
+		include "grantaccess.php";
+		//header("Location: https://reserve.bristolinn.com:8443/index.php?session=$private_id&redirect=$redirect");
+		//header("Location: http://192.168.42.1:8080/status/?session=$private_id&count=0&redirect=$redirect");
   }
 
   saveSession();

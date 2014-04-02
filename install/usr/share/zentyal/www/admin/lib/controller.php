@@ -69,7 +69,7 @@ function createUser($uid, $datetime1, $datetime2) {
   $pwgen = new PWGen();
   $pwgen->setNoVovels(true);
   $password = $pwgen->generate();
-  $password = strtolower(substr($password,0,6));
+  $password = strtoupper(substr($password,0,6));
 
 	$fh=fopen($USERS,"r");
 	if(!flock($fh, LOCK_EX)) { die("Locking failed."); }

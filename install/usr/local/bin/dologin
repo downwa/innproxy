@@ -1,0 +1,35 @@
+#!/bin/bash
+
+ip=$1
+mac=$2
+shift 2
+user=$@
+
+[ "$user" = "" -o "$ip" = "" -o "$mac" = "" ] && echo "Usage: dologin [user] [ip] [mac]" 1>&2 && exit 1
+
+echo "user=$user;ip=$ip;mac=$mac"
+
+USERS="/var/lib/innproxy/users.json"
+
+activate() {
+        # Activate users who have just logged in but were not active yet
+        now=$(date +%s)
+        # Only modify users who have an IP address but whose active date is zero
+        jqp="(.[] | {(.user):select(.ipaddr != \"\" and .active == 0)} | .active) = $now"
+        s1='s/^{//g'            # Remove open {
+        s2='s/}$/,/g'           # Replace } with ,
+        s3='$ s/},$/}/g'        # Except no , on last line 
+        (
+                flock -x 0
+                ( echo "{"; jq -c "$jqp" <$USERS | sed -e "$s1" -e "$s2" -e "$s3"; echo "}" ) >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+                chown www-data.www-data "$USERS"
+        ) <"$USERS"
+}
+
+jqp=".[\"$user\"].ipaddr=\"$ip\" | .[\"$user\"].macaddr=\"$mac\""
+(
+	flock -x 0
+	jq "$jqp" <"$USERS" >"$USERS.$$" && mv "$USERS.$$" "$USERS"
+	chown www-data.www-data "$USERS"
+) <"$USERS"
+activate # Only if not already active

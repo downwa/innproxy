@@ -4,8 +4,12 @@
 
 fwmac=$1
 fwip=$2
+fwhost=$3
 fwmac=$(echo "$fwmac" | sed -e 's/:/-/g') # In case of picky filesystems
-echo "$fwip" >"/var/lib/innproxy/firewalls/$fwmac"
+
+if [ "$fwmac" != "" ]; then
+	echo "$fwip $fwhost" >"/var/lib/innproxy/firewalls/$fwmac"
+fi
 
 JQ=/usr/local/bin/jq
 USERS=/var/lib/innproxy/users.json

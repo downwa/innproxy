@@ -1,13 +1,29 @@
 #!/bin/sh
 
+run() {
+	while [ true ]; do
+		netstat -nlp | grep -q "^tcp.*:80 " || {
+			# Shutdown extra apache processes
+			pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
+			[ "$pids" != "" ] && kill -9 $pids
+			# Remove extra IPC semaphores
+			numipcs=$(ipcs -s | grep www-data | wc -l)
+			[ "$numipcs" -gt 10 ] && echo "IPCS Overkill" && ipcs -s | grep www-data | awk ' {print $2 } ' | xargs -n 1 ipcrm -s
+			# Start Apache itself
+			/usr/sbin/apache2 -f /var/lib/innproxy/apache2.conf -DNO_DETACH &
+		}
+		sleep 10
+	done
+}
+
 start() {
-        /usr/sbin/apache2 -f /var/lib/innproxy/apache2.conf -DNO_DETACH &
+	run &
         sleep 1
 	status
 }
 
 stop() {
-	pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
+	pids=$(ps waxf | egrep "apache2.*innproxy|innproxy.*start" | grep -v grep | awk '{print $1}')
 	echo "PIDS: $pids"
 	[ "$pids" != "" ] && kill -9 $pids
 }

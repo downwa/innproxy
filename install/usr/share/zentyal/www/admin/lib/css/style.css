@@ -1,6 +1,6 @@
 @media screen {
         body      { background: #fed; }
-        a         { border-style:groove; border-width:2px; }
+        a.button  { border-style:groove; border-width:2px; }
         a:link    { color:black; text-decoration:none; }
         a:visited { color:black; text-decoration:none; }
         a:hover   { color:#050; text-decoration:none; }
@@ -29,6 +29,8 @@
         .hasIP      { background-color: #def; }
         .isOver     { background-color: #900; color: #eee; }
         .isDisabled { background-color: #750; color: #fed; }
+        .iphost { width: 200pt; }
+        .meter .a { border-style: none; }
         .meter { 
 					float: left;
 					height: 20px;  /* Can be anything */
