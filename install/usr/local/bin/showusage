@@ -5,7 +5,19 @@ user=$1
 
 USERS="/var/lib/innproxy/users/"
 
-find "$USERS" -name 'usehr-1[1-9].csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
-find "$USERS" -name 'usehr-2*.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
-find "$USERS" -name 'usehr-0*.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
-find "$USERS" -name 'usehr-10.csv' -exec grep -H ",$user," {} \; | sed -e 's/.*usehr-//g' -e 's/.csv//g' | sort
+usage() {
+	user=$1
+	find "$USERS" -name 'usehr-1[1-9].csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
+	find "$USERS" -name 'usehr-2*.csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
+	find "$USERS" -name 'usehr-0*.csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
+	find "$USERS" -name 'usehr-10.csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
+}
+
+parsehours() {
+	sed -e 's/-11.csv/-11 am.csv/g' -e 's/-10.csv/-10 am.csv/g' -e 's/-00.csv/-12 am.csv/g' -e 's/\(-0.*\).csv/\1 am.csv/g' \
+	    -e 's/-12.csv/-12 pm.csv/g' -e 's/-13.csv/-01 pm.csv/g' -e 's/-14.csv/-02 pm.csv/g' -e 's/-15.csv/-03 pm.csv/g'     \
+	    -e 's/-16.csv/-04 pm.csv/g' -e 's/-17.csv/-05 pm.csv/g' -e 's/-18.csv/-06 pm.csv/g' -e 's/-19.csv/-07 pm.csv/g'     \
+	    -e 's/-20.csv/-08 pm.csv/g' -e 's/-21.csv/-09 pm.csv/g' -e 's/-22.csv/-10 pm.csv/g' -e 's/-23.csv/-11 pm.csv/g'
+}
+
+usage "$user" | parsehours | sed -e 's/.*usehr-//g' -e 's/.csv//g' -e 's/: /, /g'

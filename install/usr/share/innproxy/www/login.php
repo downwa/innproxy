@@ -50,6 +50,8 @@
                         and limited to <?=$mblimit?> Mb/day.
                         Illegal activities, pornography, etc.
                         may cause account suspension.
+                        <b>(Less than 10 minutes of YouTube will use
+                        it up for the day).</b>
                 </span>
                 <span style="color:blue;font-size:8pt;">
                         NOTE: The status window must remain open

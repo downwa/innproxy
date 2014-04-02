@@ -42,7 +42,7 @@
           <span class="small" title="mac:$macaddr ip:$ipaddr bytes:$bytes">$leave</span>
         </div>
         <div class="meter">
-					<span style="width: $pct%;white-space: nowrap;overflow:visible;" title="$mbytes Mb"><a href="usage.php?user=$user" target="_blank">&nbsp;$mbytes Mb</a></span>
+					<span style="width: $pct%;white-space: nowrap;overflow:visible;" title="$mbytes Mb"><a href="usage.php?user=$user" target="_blank" title="Click for usage details">&nbsp;$mbytes Mb</a></span>
         </div>
       </div>
 
