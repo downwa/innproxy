@@ -6,11 +6,10 @@ user=$1
 USERS="/var/lib/innproxy/users/"
 
 usage() {
-	user=$1
-	find "$USERS" -name 'usehr-1[1-9].csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
-	find "$USERS" -name 'usehr-2*.csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
-	find "$USERS" -name 'usehr-0*.csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
-	find "$USERS" -name 'usehr-10.csv' -exec grep -H "[0-9][0-9]*,$user," {} \; | sort
+	find "$USERS" -name 'usehr-1[1-9].csv' -exec grep -H "[0-9][0-9]*," {} \; | c1 | sort
+	find "$USERS" -name 'usehr-2*.csv' -exec grep -H "[0-9][0-9]*," {} \; | c1 | sort
+	find "$USERS" -name 'usehr-0*.csv' -exec grep -H "[0-9][0-9]*," {} \; | c1 | sort
+	find "$USERS" -name 'usehr-10.csv' -exec grep -H "[0-9][0-9]*," {} \; | c1 | sort
 }
 
 parsehours() {
@@ -20,4 +19,31 @@ parsehours() {
 	    -e 's/-20.csv/-08 pm.csv/g' -e 's/-21.csv/-09 pm.csv/g' -e 's/-22.csv/-10 pm.csv/g' -e 's/-23.csv/-11 pm.csv/g'
 }
 
-usage "$user" | parsehours | sed -e 's/.*usehr-//g' -e 's/.csv//g' -e 's/: /, /g'
+c1() {
+	sed -e 's/.*usehr-//g'
+}
+
+cleanup() {
+	sed -e 's/.*usehr-//g' -e 's/.csv//g' -e 's/: /, /g'
+}
+
+userfilter() {
+	user=$1
+	grep "[0-9][0-9]*,$user,"
+}
+
+macfilter() {
+	macs=$1
+	patt=$(echo $macs | sed -e 's/ /,|,/g')
+	patt=",$patt,"
+	egrep "$patt"
+}
+
+u=$(usage | parsehours | cleanup)
+macs=$(echo "$u" | userfilter "$user" | cut -d ',' -f 4 | sort | uniq)
+if [ "$macs" != "" ]; then
+	uu=$(echo "$u" | macfilter "$macs")
+	echo "$uu"
+	total=$(echo "$uu" | awk -F, '{t+=$2} END {print t/1000/1000" Mb"}')
+	echo ",$total,,,Total"
+fi
