@@ -1,8 +1,10 @@
 <?php
 
   $CLIENTIPS="192.168.42.";
-  $USERS="/var/lib/innproxy/users.json";
-  $FWDIR="/var/lib/innproxy/firewalls/";
+  $INNPROXY="/var/lib/innproxy";
+  $USERS=$INNPROXY."/users.json";
+  $FWDIR=$INNPROXY."/firewalls/";
+  $NEWUSER=$INNPROXY."/sessions";
 
   ini_set('display_errors',1); 
   error_reporting(E_ALL); //error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
@@ -59,7 +61,7 @@ function j4p_parseForm($input) {
     NOTE: Returns -1 if specified user or dates are invalid, 0 on success.
 **/
 function createUser($uid, $datetime1, $datetime2) {
-	global $USERS;
+	global $USERS,$NEWUSER;
   $secs = $datetime2 - $datetime1;// == <seconds between the two times>
   if($uid == "" || $secs<0) {
     return -1;
@@ -86,6 +88,10 @@ function createUser($uid, $datetime1, $datetime2) {
 	$users->$uid->disabled=false;
 	saveUsers($users);
 	flock($fh, LOCK_UN); fclose($fh);
+	// Notify of creation to ZERO usage for this uid	
+  if(@file_put_contents($NEWUSER."/sess-newuser-".$datetime2.".flag", $uid) === FALSE) {
+		J4P::addResponse()->alert('Unable to zero usage for this user.');
+  }
 	return 0;
 }
 

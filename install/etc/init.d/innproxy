@@ -2,7 +2,15 @@
 
 run() {
 	while [ true ]; do
-		netstat -nlp | grep -q "^tcp.*:80 " || {
+		# Verify login server at 8080 is up and responding in a timely manner.
+		ok=$(wget -O - --tries=1 --timeout=20 http://localhost:8080 2>/dev/null | grep -q IGLOOPORTAL && echo ok)
+		if [ "$ok" != "ok" ]; then
+			pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
+			echo "TIMEOUT pids=$pids" >/var/log/innproxy-8080.log
+			[ "$pids" != "" ] && kill $pids
+		fi	
+		# If nothing is listening on :8080 (perhaps because of above shutdown), kill children and restart server.
+		netstat -nlp | grep -q "^tcp.*:8080 " || {
 			# Shutdown extra apache processes
 			pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
 			[ "$pids" != "" ] && kill -9 $pids
@@ -12,7 +20,7 @@ run() {
 			# Start Apache itself
 			/usr/sbin/apache2 -f /var/lib/innproxy/apache2.conf -DNO_DETACH &
 		}
-		sleep 10
+		sleep 60
 	done
 }
 
