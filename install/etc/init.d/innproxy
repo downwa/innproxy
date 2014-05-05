@@ -20,6 +20,12 @@ run() {
 			# Start Apache itself
 			/usr/sbin/apache2 -f /var/lib/innproxy/apache2.conf -DNO_DETACH &
 		}
+		# Reinstate .php after nginx update (for serving status and admin pages)
+		conf="/usr/share/zentyal/stubs/core/nginx.conf.mas"
+		src="/home/administrator/innproxy/install$conf"
+		diff "$src" "$conf" >/dev/null || { cp -av "$src" "$conf"; /etc/init.d/zentyal webadmin restart; }
+
+		# Wait and check again
 		sleep 60
 	done
 }

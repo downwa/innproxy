@@ -2,6 +2,7 @@
 
 USAGES="/var/lib/innproxy/users/"
 USERS="/var/lib/innproxy/users.json"
+SESSIONS="/var/lib/innproxy/sessions/"
 JQ="/usr/local/bin/jq" # Need newer version which provides 'has()' function
 
 usage() {
@@ -42,6 +43,13 @@ expired() {
 		chown www-data.www-data "$USERS"
 		restore "expired"
 	) <"$USERS"
+
+	# Now, remove sessions of expired users
+	users=$($JQ '.[] | {(.user):select((.active > 0))} | .[].user' <"$USERS") # List only active users
+	find "$SESSIONS" -type f | while read session; do
+		user=$(cat "$session")
+		echo "$users" | grep -q "\"$user\"" || rm -f "$session" # If session user is not found in active user list, remove session
+	done
 }
 
 activate() {

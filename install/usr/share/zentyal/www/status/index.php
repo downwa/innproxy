@@ -1,5 +1,5 @@
-<?php
-
+<!-- <?php
+	// --><script lang="javascript">setTimeout("document.getElementById('b').innerHTML='Server Update Error: Contact System Administrator';",1000);</script><!--
 	function now() { // Output the date in m/d/Y H:i:s format
 		$date = new DateTime();
 		return $date->format('m/d/Y H:i:s');
@@ -93,6 +93,7 @@
 	else { $user="Authenticating..."; $hhmmss="unknown time"; }
 	
 ?> 
+-->
 <html>
   <head><title>Session Status</title>
     <meta HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE" />
@@ -108,7 +109,7 @@
 			}
 		</script>		
   </head> 
-  <body>
+  <body id="b">
     <div class="base title">Session Status</div>
     
 		<div style="color:blue;font-size:9pt;">
