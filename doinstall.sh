@@ -7,7 +7,10 @@
 ln -s /usr/share/zentyal/www /var/
 
 # Install patches
+sudo chown -R root.root etc/ usr/local var
+sudo chown -R www-data.www-data usr/share/
 cp -av /home/administrator/innproxy/install/* /
+patch /usr/share/zentyal/stubs/core/nginx.conf.mas <nginx.patch
 if [ ! -f /etc/apache2/passwd/passwords ]; then
 
 mkdir -p /etc/apache2/passwd

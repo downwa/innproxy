@@ -5,6 +5,9 @@
 default:
 	echo "Choose checkin, checkout, bin, install, or gitconfig"
 
+diff:
+	diff /usr/share/zentyal/stubs/core/nginx.conf.mas install/usr/share/zentyal/stubs/core/nginx.conf.mas >nginx.patch 
+
 gitconfig:
 	git config --global push.default simple
 	git config --global credential.helper 'cache --timeout=3600'
