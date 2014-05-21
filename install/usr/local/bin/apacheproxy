@@ -1,0 +1,12 @@
+#!/bin/sh
+
+export APACHE_RUN_USER=www-data
+export APACHE_RUN_GROUP=www-data
+
+export APACHE_RUN_DIR=/var/run/apache2innproxy/
+export APACHE_LOCK_DIR=/var/lock/apache2innproxy/
+export APACHE_PID_FILE=/var/run/apache2innproxy/apache2.pid
+export APACHE_LOG_DIR=/var/log/innproxy
+mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
+
+/usr/sbin/apache2 -X -f /var/lib/innproxy/apache2.conf -DNO_DETACH

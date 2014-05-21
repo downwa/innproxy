@@ -1,21 +1,29 @@
-118a119,138
->         location ~ /status/(.*)\.php$ {
->             try_files $uri $uri/ =404;
->             fastcgi_pass unix:/var/run/php5-fpm.sock;
->             fastcgi_index index.php;
->             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
->             fastcgi_param PATH_INFO $fastcgi_script_name;
->             include /etc/nginx/fastcgi_params;
->         }
-> 
->         location ~ /admin/(.*)\.php$ {
->             auth_basic  "InnProxy Management";
->             auth_basic_user_file /etc/apache2/passwd/passwords;
->             try_files $uri $uri/ =404;
->             fastcgi_pass unix:/var/run/php5-fpm.sock;
->             fastcgi_index index.php;
->             fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
->             fastcgi_param PATH_INFO $fastcgi_script_name;
->             include /etc/nginx/fastcgi_params;
->         }
-> 
+--- /usr/share/zentyal/stubs/core/nginx.conf.mas	2014-05-08 16:14:15.000000000 +0000
++++ usr_share_zentyal_stubs_core_nginx.conf.mas	2014-05-13 19:12:03.301301636 +0000
+@@ -116,6 +116,26 @@
+            root /usr/share/zentyal/www;
+         }
+ 
++        location ~ /status/(.*)\.php$ {
++            try_files $uri $uri/ =404;
++            fastcgi_pass unix:/var/run/php5-fpm.sock;
++            fastcgi_index index.php;
++            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
++            fastcgi_param PATH_INFO $fastcgi_script_name;
++            include /etc/nginx/fastcgi_params;
++        }
++
++        location ~ /admin/(.*)\.php$ {
++            auth_basic  "InnProxy Management";
++            auth_basic_user_file /etc/apache2/passwd/passwords;
++            try_files $uri $uri/ =404;
++            fastcgi_pass unix:/var/run/php5-fpm.sock;
++            fastcgi_index index.php;
++            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
++            fastcgi_param PATH_INFO $fastcgi_script_name;
++            include /etc/nginx/fastcgi_params;
++        }
++
+         location /data/ {
+ <& .restricted, restrictions => $sectionrestrictions{'/data/'} &>
+             root /usr/share/zentyal/www;

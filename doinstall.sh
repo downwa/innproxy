@@ -6,13 +6,23 @@
 [ -d /var/www ] && rmdir /var/www
 ln -s /usr/share/zentyal/www /var/
 
+# Install PHP and additional utilities (binutils for strings, bind9-host for host)
+apt-get install php5-fpm php5-json libapache2-mod-php5 mlocate binutils realpath bc bind9-host apache2-utils inotify-tools
+
+# Enable Apache2 modules
+a2enmod rewrite ssl
+
+mkdir -p /var/log/innproxy
+
 # Install patches
 sudo chown -R root.root etc/ usr/local var
 sudo chown -R www-data.www-data usr/share/
 cp -av /home/administrator/innproxy/install/* /
-patch /usr/share/zentyal/stubs/core/nginx.conf.mas <nginx.patch
+patch -Nu /usr/share/zentyal/stubs/core/nginx.conf.mas </home/administrator/innproxy/nginx.patch
 if [ ! -f /etc/apache2/passwd/passwords ]; then
 
+mkdir /var/lib/innproxy/{firewalls,sessions,ssl,users}
+touch /var/lib/innproxy/users.json
 mkdir -p /etc/apache2/passwd
 for user in wdowns frontdesk justin; do
 	echo "Setting web password for $user..."
@@ -22,9 +32,6 @@ for user in wdowns frontdesk justin; do
 done
 
 fi
-
-# Install PHP and additional utilities (binutils for strings, bind9-host for host)
-apt-get install php5-fpm libapache2-mod-php5 mlocate binutils realpath bc bind9-host
 
 # Restart servers
 /etc/init.d/php5-fpm restart

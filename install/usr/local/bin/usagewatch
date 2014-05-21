@@ -44,11 +44,11 @@ expired() {
 		restore "expired"
 	) <"$USERS"
 
-	# Now, remove sessions of expired users
-	users=$($JQ '.[] | {(.user):select((.active > 0))} | .[].user' <"$USERS") # List only active users
+	# Now, remove sessions of expired users and users who have gone over the daily limit
+	users=$($JQ ".[] | {(.user):select((.active > 0 and .bytes < $OVERUSE))} | .[].user" <"$USERS") # List only active users who are under limit
 	find "$SESSIONS" -type f | while read session; do
 		user=$(cat "$session")
-		echo "$users" | grep -q "\"$user\"" || rm -f "$session" # If session user is not found in active user list, remove session
+		echo "$users" | grep -q "\"$user\"" || rm -f "$session" # If session user is not found in active user/under usage list, remove session
 	done
 }
 

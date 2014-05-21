@@ -3,10 +3,10 @@
 # then git push -f origin master
 
 default:
-	echo "Choose checkin, checkout, bin, install, or gitconfig"
+	echo "Choose checkin, checkout, bin, doinstall, or gitconfig"
 
 diff:
-	diff /usr/share/zentyal/stubs/core/nginx.conf.mas install/usr/share/zentyal/stubs/core/nginx.conf.mas >nginx.patch 
+	diff -Naur /usr/share/zentyal/stubs/core/nginx.conf.mas usr_share_zentyal_stubs_core_nginx.conf.mas >/home/administrator/innproxy/nginx.patch || true
 
 gitconfig:
 	git config --global push.default simple
@@ -20,10 +20,7 @@ checkin: # e.g. downwa
 	git commit -v
 	git push
 
-bin:
-	make -C scripts
-
-install: bin
+doinstall:
 	./doinstall.sh
 
 update:

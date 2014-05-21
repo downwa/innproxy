@@ -1,30 +1,40 @@
 #!/bin/sh
 
+runmain() {
+	# Verify login server at 8080 is up and responding in a timely manner.
+	ok=$(wget -O - --tries=1 --timeout=20 http://localhost:8080 2>/dev/null | grep -q IGLOOPORTAL && echo ok)
+	if [ "$ok" != "ok" ]; then
+		pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
+		echo "TIMEOUT pids=$pids" >/var/log/innproxy-8080.log
+		[ "$pids" != "" ] && kill $pids
+	fi	
+	# If nothing is listening on :8080 (perhaps because of above shutdown), kill children and restart server.
+	netstat -nlp | grep -q "^tcp.*:8080 " || {
+		# Shutdown extra apache processes
+		pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
+		[ "$pids" != "" ] && kill -9 $pids
+		# Remove extra IPC semaphores
+		numipcs=$(ipcs -s | grep www-data | wc -l)
+		[ "$numipcs" -gt 10 ] && echo "IPCS Overkill" && ipcs -s | grep www-data | awk ' {print $2 } ' | xargs -n 1 ipcrm -s
+		# Start Apache itself
+		/usr/local/bin/apacheproxy &
+	}
+	# Reinstate .php after nginx update (for serving status and admin pages)
+	conf="/usr/share/zentyal/stubs/core/nginx.conf.mas"
+	chk="/tmp/nginx.conf.mas"
+	cp "$conf" "$chk"
+	patch -Nu "$conf" </home/administrator/innproxy/nginx.patch
+	# IF different after patching, also patch conf
+	diff "$chk" "$conf" >/dev/null || {
+		patch -u "$conf" </home/administrator/innproxy/nginx.patch
+		/etc/init.d/zentyal webadmin restart;
+	}
+	rm "$chk" # Don't keep this since it is to be generated from patch+system
+}
+
 run() {
 	while [ true ]; do
-		# Verify login server at 8080 is up and responding in a timely manner.
-		ok=$(wget -O - --tries=1 --timeout=20 http://localhost:8080 2>/dev/null | grep -q IGLOOPORTAL && echo ok)
-		if [ "$ok" != "ok" ]; then
-			pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
-			echo "TIMEOUT pids=$pids" >/var/log/innproxy-8080.log
-			[ "$pids" != "" ] && kill $pids
-		fi	
-		# If nothing is listening on :8080 (perhaps because of above shutdown), kill children and restart server.
-		netstat -nlp | grep -q "^tcp.*:8080 " || {
-			# Shutdown extra apache processes
-			pids=$(ps waxf | grep apache2.*innproxy | grep -v grep | awk '{print $1}')
-			[ "$pids" != "" ] && kill -9 $pids
-			# Remove extra IPC semaphores
-			numipcs=$(ipcs -s | grep www-data | wc -l)
-			[ "$numipcs" -gt 10 ] && echo "IPCS Overkill" && ipcs -s | grep www-data | awk ' {print $2 } ' | xargs -n 1 ipcrm -s
-			# Start Apache itself
-			/usr/sbin/apache2 -f /var/lib/innproxy/apache2.conf -DNO_DETACH &
-		}
-		# Reinstate .php after nginx update (for serving status and admin pages)
-		conf="/usr/share/zentyal/stubs/core/nginx.conf.mas"
-		src="/home/administrator/innproxy/install$conf"
-		diff "$src" "$conf" >/dev/null || { cp -av "$src" "$conf"; /etc/init.d/zentyal webadmin restart; }
-
+		runmain 2>&1 >/var/log/innproxy.log
 		# Wait and check again
 		sleep 60
 	done
@@ -44,6 +54,12 @@ stop() {
 
 status() {
         netstat -nlp | egrep ":80|:443|:447"
+	d=$(ps waxf | grep init.d/innproxy | grep -v grep | grep -v status)
+	if [ "$d" = "" ]; then
+		echo "innproxy daemon is stopped"
+	else
+		echo "innproxy daemon is running: $d"
+	fi
 }
 
 case $1 in
